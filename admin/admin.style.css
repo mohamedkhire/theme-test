@@ -1,0 +1,364 @@
+/**
+ * Relisys Dark Glassify Theme - Admin Stylesheet
+ * High-End Dark Glass Theme for Pterodactyl Admin Control Panel
+ * Author: Mohamed Khire
+ * Version: 2.0.0
+ */
+
+:root {
+  --relisys-bg: #08090e;
+  --relisys-bg-secondary: #0d0f17;
+  --relisys-surface: rgba(15, 18, 28, 0.72);
+  --relisys-surface-elevated: rgba(23, 27, 42, 0.85);
+  --relisys-glass-border: rgba(255, 255, 255, 0.08);
+  --relisys-glass-border-strong: rgba(255, 255, 255, 0.16);
+  --relisys-accent: #6366f1;
+  --relisys-accent-rgb: 99, 102, 241;
+  --relisys-accent-glow: rgba(99, 102, 241, 0.35);
+  --relisys-text: #f8fafc;
+  --relisys-text-muted: #94a3b8;
+  --relisys-text-dim: #64748b;
+  --relisys-radius: 12px;
+  --relisys-radius-sm: 8px;
+}
+
+html,
+body,
+.skin-blue .wrapper,
+div.content-wrapper {
+  background-color: var(--relisys-bg) !important;
+  color: var(--relisys-text) !important;
+  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+
+/* Header & Navbar */
+.skin-blue .main-header .navbar,
+.skin-blue .main-header .logo,
+nav.navbar.navbar-static-top,
+a.logo {
+  background-color: rgba(11, 14, 23, 0.88) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid var(--relisys-glass-border) !important;
+}
+
+.main-header .logo {
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #ffffff !important;
+}
+
+/* Sidebar Fixes: No text truncation, beautiful glass pill items */
+aside.main-sidebar,
+.skin-blue .main-sidebar,
+.skin-blue .left-side {
+  background: rgba(11, 14, 23, 0.82) !important;
+  backdrop-filter: blur(22px) !important;
+  -webkit-backdrop-filter: blur(22px) !important;
+  border-right: 1px solid var(--relisys-glass-border) !important;
+  width: 250px !important;
+}
+
+.main-sidebar .sidebar {
+  padding: 10px 8px !important;
+}
+
+/* Fix truncated headers */
+ul.sidebar-menu > li.header {
+  background: transparent !important;
+  color: var(--relisys-text-dim) !important;
+  font-size: 10px !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  padding: 14px 12px 6px !important;
+  white-space: normal !important;
+  overflow: visible !important;
+}
+
+ul.sidebar-menu > li > a {
+  padding: 9px 12px !important;
+  margin: 2px 0 !important;
+  border-radius: var(--relisys-radius-sm) !important;
+  color: var(--relisys-text-muted) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  transition: all 180ms ease !important;
+}
+
+ul.sidebar-menu > li > a:hover,
+ul.sidebar-menu > li.active > a,
+.skin-blue .sidebar-menu > li.active > a {
+  background: rgba(var(--relisys-accent-rgb), 0.14) !important;
+  color: #ffffff !important;
+  box-shadow: inset 0 0 0 1px rgba(var(--relisys-accent-rgb), 0.28) !important;
+}
+
+ul.sidebar-menu > li.active > a > i,
+ul.sidebar-menu > li > a:hover > i {
+  color: var(--relisys-accent) !important;
+}
+
+/* Boxes & Cards */
+div.box,
+div.info-box,
+div.small-box,
+div.nav-tabs-custom {
+  background: var(--relisys-surface) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  border-radius: var(--relisys-radius) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4) !important;
+  color: var(--relisys-text) !important;
+}
+
+div.box-header.with-border {
+  border-bottom: 1px solid var(--relisys-glass-border) !important;
+  color: #ffffff !important;
+}
+
+/* Content wrapper & offset */
+.content-wrapper,
+.right-side {
+  margin-left: 250px !important;
+}
+
+/* Form Controls */
+.form-control {
+  background: rgba(18, 22, 35, 0.75) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  border-radius: var(--relisys-radius-sm) !important;
+  color: #ffffff !important;
+}
+
+.form-control:focus {
+  border-color: var(--relisys-accent) !important;
+  box-shadow: 0 0 0 3px rgba(var(--relisys-accent-rgb), 0.2) !important;
+}
+
+/* Buttons */
+.btn {
+  border-radius: var(--relisys-radius-sm) !important;
+  font-weight: 600 !important;
+  transition: all 180ms ease !important;
+}
+
+.btn-primary {
+  background: var(--relisys-accent) !important;
+  border: none !important;
+  box-shadow: 0 4px 14px var(--relisys-accent-glow) !important;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.15);
+}
+
+.btn-success {
+  background: #10b981 !important;
+  border: none !important;
+}
+
+.btn-danger {
+  background: #f43f5e !important;
+  border: none !important;
+}
+
+.btn-default {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  color: var(--relisys-text) !important;
+}
+
+/* Tables */
+table.table > tbody > tr > td,
+table.table > thead > tr > th {
+  border-color: var(--relisys-glass-border) !important;
+  vertical-align: middle !important;
+}
+
+.table-hover > tbody > tr:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Admin Hero Banner */
+.relisys-admin-hero {
+  background: linear-gradient(135deg, rgba(23, 27, 44, 0.9), rgba(11, 14, 23, 0.85));
+  border: 1px solid var(--relisys-glass-border-strong);
+  border-radius: var(--relisys-radius);
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+}
+
+.relisys-admin-hero-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.relisys-admin-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--relisys-glass-border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px var(--relisys-accent-glow);
+}
+
+.relisys-r-logo {
+  width: 32px;
+  height: 32px;
+}
+
+.relisys-admin-hero-title {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.relisys-admin-hero-desc {
+  margin: 0;
+  font-size: 13px;
+  color: var(--relisys-text-muted);
+}
+
+.relisys-admin-hero-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.relisys-badge-version {
+  background: rgba(var(--relisys-accent-rgb), 0.18);
+  border: 1px solid var(--relisys-accent);
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: monospace;
+}
+
+.relisys-badge-author {
+  font-size: 11px;
+  color: var(--relisys-text-dim);
+}
+
+/* Palette Grid */
+.relisys-admin-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.relisys-admin-color-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--relisys-glass-border);
+  border-radius: var(--relisys-radius-sm);
+  padding: 10px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.relisys-admin-color-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.relisys-admin-color-btn.active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--btn-color);
+  box-shadow: 0 0 12px var(--btn-color);
+}
+
+.relisys-admin-color-btn .dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--btn-color);
+}
+
+/* Feature List */
+.relisys-feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.relisys-feature-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--relisys-glass-border);
+  border-radius: var(--relisys-radius-sm);
+}
+
+/* Live Preview Card */
+.relisys-preview-card {
+  background: rgba(13, 16, 25, 0.9);
+  border: 1px solid var(--relisys-glass-border-strong);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5);
+}
+
+.relisys-preview-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #10b981;
+  font-weight: 600;
+}
+
+.pulse-beacon {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.meter-group .meter-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--relisys-text-muted);
+  margin-bottom: 4px;
+}
+
+.meter-group .meter-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.meter-group .meter-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--relisys-accent), #38bdf8);
+  border-radius: 99px;
+}

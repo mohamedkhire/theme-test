@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relisys Admin Control Panel - Theme Showcase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="admin/admin.style.css" />
+  <style>
+    /* AdminLTE Simulation styles */
+    .wrapper { min-height: 100vh; position: relative; }
+    .main-header { position: fixed; top: 0; left: 0; right: 0; z-index: 1030; height: 50px; }
+    .main-sidebar { position: fixed; top: 0; left: 0; bottom: 0; z-index: 1020; padding-top: 50px; }
+    .content-wrapper { padding-top: 50px; min-height: 100vh; }
+    .row { display: flex; flex-wrap: wrap; margin-right: -10px; margin-left: -10px; }
+    .col-xs-12 { flex: 0 0 100%; max-width: 100%; padding: 0 10px; box-sizing: border-box; }
+    @media (min-width: 992px) {
+      .col-md-3 { flex: 0 0 25% !important; max-width: 25% !important; }
+      .col-md-4 { flex: 0 0 33.333% !important; max-width: 33.333% !important; }
+      .col-md-6 { flex: 0 0 50% !important; max-width: 50% !important; }
+      .col-md-12 { flex: 0 0 100% !important; max-width: 100% !important; }
+    }
+    .pull-right { float: right; }
+    .clearfix::after { content: ""; clear: both; display: table; }
+    .navbar-nav { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; }
+    .sidebar-menu { list-style: none; margin: 0; padding: 0; }
+  </style>
+</head>
+<body class="skin-blue sidebar-mini">
+  <div class="wrapper">
+    <!-- Main Header -->
+    <header class="main-header">
+      <a href="/admin" class="logo">
+        <div class="relisys-admin-brand-wrapper">
+          <div class="relisys-admin-logo-icon">
+            <svg viewBox="0 0 175 135" class="relisys-admin-r-logo"><path fill="currentColor" fill-rule="evenodd" d="M 97 62 L 96 62 L 95 61 L 68 61 L 67 62 L 65 62 L 59 68 L 59 69 L 55 73 L 55 74 L 51 78 L 51 79 L 46 84 L 46 85 L 42 89 L 42 90 L 38 94 L 38 95 L 33 100 L 33 101 L 29 105 L 29 106 L 24 111 L 24 112 L 19 117 L 19 118 L 16 121 L 51 121 L 52 120 L 54 120 L 55 119 L 56 119 L 57 118 L 57 117 L 61 113 L 61 112 L 65 108 L 65 107 L 69 103 L 69 102 L 73 98 L 73 97 L 78 92 L 78 91 L 83 86 L 83 85 L 91 76 L 91 75 L 93 73 L 93 72 L 95 70 L 95 69 L 97 66 Z M 15 16 L 17 18 L 18 18 L 35 35 L 36 35 L 43 42 L 81 42 L 82 43 L 106 43 L 107 44 L 109 44 L 110 45 L 111 45 L 117 51 L 117 52 L 118 53 L 118 61 L 117 62 L 116 65 L 113 68 L 113 69 L 108 74 L 108 75 L 101 82 L 101 83 L 96 88 L 96 89 L 95 90 L 95 92 L 96 93 L 96 94 L 99 97 L 99 98 L 103 102 L 103 103 L 109 109 L 109 110 L 113 114 L 113 115 L 118 120 L 119 120 L 120 121 L 161 121 L 160 120 L 160 119 L 156 115 L 156 114 L 150 108 L 150 107 L 146 103 L 146 102 L 141 97 L 141 96 L 136 91 L 136 90 L 132 86 L 132 83 L 133 82 L 136 81 L 139 78 L 140 78 L 144 74 L 144 73 L 147 70 L 147 69 L 148 68 L 148 67 L 151 62 L 151 60 L 152 59 L 152 54 L 153 53 L 153 47 L 152 46 L 152 42 L 151 41 L 151 38 L 150 37 L 150 36 L 149 35 L 148 32 L 144 28 L 144 27 L 137 21 L 136 21 L 133 19 L 131 19 L 130 18 L 128 18 L 127 17 L 124 17 L 123 16 Z"/></svg>
+          </div>
+          <div class="relisys-admin-brand-text">
+            <span class="relisys-brand-title">RELISYS</span>
+            <span class="relisys-brand-sub">ADMIN CONTROL</span>
+          </div>
+        </div>
+      </a>
+      <nav class="navbar navbar-static-top">
+        <a href="#" class="sidebar-toggle"><i class="fa fa-bars"></i></a>
+        <div class="navbar-custom-menu pull-right">
+          <ul class="nav navbar-nav">
+            <li class="relisys-nav-action-item">
+              <a href="/" class="relisys-btn-client-exit"><i class="fa fa-th-large"></i> <span>Client Dashboard</span></a>
+            </li>
+            <li class="dropdown user user-menu">
+              <a href="#" style="color: #fff; padding: 15px;"><i class="fa fa-user-circle"></i> mohamedkhire</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Main Sidebar -->
+    <aside class="main-sidebar">
+      <section class="sidebar">
+        <!-- User Panel -->
+        <div class="user-panel">
+          <div class="pull-left image">
+            <img src="https://gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" class="img-circle" alt="User Image" width="40" height="40">
+          </div>
+          <div class="pull-left info">
+            <p>Mohamed Khire</p>
+            <a href="#"><span class="relisys-admin-pulse"></span> Root Administrator</a>
+          </div>
+        </div>
+
+        <!-- Sidebar Menu -->
+        <ul class="sidebar-menu">
+          <li class="header">BASIC ADMINISTRATION</li>
+          <li class="active">
+            <a href="/admin">
+              <span class="relisys-menu-icon-wrap"><i class="fa fa-home"></i></span>
+              <span>Overview</span>
+            </a>
+          </li>
+          <li>
+            <a href="/admin/settings">
+              <span class="relisys-menu-icon-wrap"><i class="fa fa-wrench"></i></span>
+              <span>Settings</span>
+            </a>
+          </li>
+          <li>
+            <a href="/admin/api">
+              <span class="relisys-menu-icon-wrap"><i class="fa fa-gamepad"></i></span>
+              <span>Application API</span>
+            </a>
+          </li>
+
+          <li class="header">MANAGEMENT</li>
+          <li>
+            <a href="/admin/databases">
+              <span class="relisys-menu-icon-wrap"><i class="fa fa-database"></i></span>
+              <span>Databases</span>
+            </a>
+          </li>
+          <li>
+            <a href="/admin/locations">
+              <span class="relisys-menu-icon-wrap"><i class="fa fa-globe"></i></span>
+              <span>Locations</span>
+            </a>
+          </li>
+          <li>
+            <a href="/admin/nodes">
+              <span class="relisys-menu-icon-wrap"><i class="fa fa-sitemap"></i></span>
+              <span>Nodes</span>
+            </a>
+          </li>
+          <li>
+            <a href="/admin/servers">
+              <span class="relisys-menu-icon-wrap"><i class="fa fa-server"></i></span>
+              <span>Servers</span>
+            </a>
+          </li>
+          <li>
+            <a href="/admin/users">
+              <span class="relisys-menu-icon-wrap"><i class="fa fa-users"></i></span>
+              <span>Users</span>
+            </a>
+          </li>
+
+          <li class="header">EXTENSIONS & BLUEPRINT</li>
+          <li>
+            <a href="/admin/extensions/relisys">
+              <span class="relisys-menu-icon-wrap"><i class="fa fa-paint-brush"></i></span>
+              <span>Relisys Theme</span>
+            </a>
+          </li>
+        </ul>
+      </section>
+    </aside>
+
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+      <section class="content-header">
+        <h1>Administrative Overview <small>A quick glimpse of your systems.</small></h1>
+        <ol class="breadcrumb">
+          <li><a href="#"><i class="fa fa-dashboard"></i> Admin</a></li>
+          <li class="active">Overview</li>
+        </ol>
+      </section>
+
+      <!-- Main content -->
+      <section class="content">
+        <!-- Stat Info Boxes -->
+        <div class="row">
+          <div class="col-md-3 col-xs-12">
+            <div class="info-box">
+              <span class="info-box-icon"><i class="fa fa-server"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Total Servers</span>
+                <span class="info-box-number">13</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-xs-12">
+            <div class="info-box">
+              <span class="info-box-icon" style="color: #38bdf8; background: rgba(0, 240, 255, 0.16);"><i class="fa fa-sitemap"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Active Nodes</span>
+                <span class="info-box-number">2</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-xs-12">
+            <div class="info-box">
+              <span class="info-box-icon" style="color: #34d399; background: rgba(16, 185, 129, 0.16);"><i class="fa fa-users"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Registered Users</span>
+                <span class="info-box-number">28</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-xs-12">
+            <div class="info-box">
+              <span class="info-box-icon" style="color: #fbbf24; background: rgba(245, 158, 11, 0.16);"><i class="fa fa-microchip"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Memory Allocated</span>
+                <span class="info-box-number">14.5 GiB</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Servers Table Box -->
+        <div class="row">
+          <div class="col-md-12">
+            <div class="box box-primary">
+              <div class="box-header with-border clearfix">
+                <h3 class="box-title"><i class="fa fa-server"></i> Active Servers List</h3>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Create Server</button>
+                </div>
+              </div>
+              <div class="box-body no-padding">
+                <div class="relisys-table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Server Name</th>
+                        <th>UUID / Identifier</th>
+                        <th>Owner</th>
+                        <th>Node</th>
+                        <th>Connection</th>
+                        <th>Memory Limit</th>
+                        <th>Status</th>
+                        <th class="text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><strong><a href="#" style="color:#ffffff;">Code-RS main</a></strong></td>
+                        <td><code>b619bf51</code></td>
+                        <td>mohamedkhire</td>
+                        <td>Lightsail-Ubuntu</td>
+                        <td><code>13.140.178.104:3000</code></td>
+                        <td>1024 MiB</td>
+                        <td><span class="label label-success"><i class="fa fa-circle"></i> Online</span></td>
+                        <td class="text-right">
+                          <button class="btn btn-xs btn-default"><i class="fa fa-wrench"></i> Manage</button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><strong><a href="#" style="color:#ffffff;">Five Star</a></strong></td>
+                        <td><code>e9ccd788</code></td>
+                        <td>mohamedkhire</td>
+                        <td>Lightsail-Ubuntu</td>
+                        <td><code>13.140.178.104:3010</code></td>
+                        <td>350 MiB</td>
+                        <td><span class="label label-success"><i class="fa fa-circle"></i> Online</span></td>
+                        <td class="text-right">
+                          <button class="btn btn-xs btn-default"><i class="fa fa-wrench"></i> Manage</button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><strong><a href="#" style="color:#ffffff;">Bat Cave</a></strong></td>
+                        <td><code>84e63552</code></td>
+                        <td>mohamedkhire</td>
+                        <td>Lightsail-Ubuntu</td>
+                        <td><code>13.140.178.104:3011</code></td>
+                        <td>350 MiB</td>
+                        <td><span class="label label-success"><i class="fa fa-circle"></i> Online</span></td>
+                        <td class="text-right">
+                          <button class="btn btn-xs btn-default"><i class="fa fa-wrench"></i> Manage</button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><strong><a href="#" style="color:#ffffff;">Rivo Store</a></strong></td>
+                        <td><code>7708286e</code></td>
+                        <td>mohamedkhire</td>
+                        <td>Lightsail-Ubuntu</td>
+                        <td><code>13.140.178.104:3002</code></td>
+                        <td>500 MiB</td>
+                        <td><span class="label label-success"><i class="fa fa-circle"></i> Online</span></td>
+                        <td class="text-right">
+                          <button class="btn btn-xs btn-default"><i class="fa fa-wrench"></i> Manage</button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="box-footer clearfix">
+                <span style="color: var(--relisys-text-muted); font-size: 13px;">Showing 1 to 4 of 13 servers</span>
+                <ul class="pagination pagination-sm no-margin pull-right" style="list-style:none; display:flex;">
+                  <li class="active"><a href="#">1</a></li>
+                  <li><a href="#">2</a></li>
+                  <li><a href="#">3</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</body>
+</html>

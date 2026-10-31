@@ -1,189 +1,950 @@
 /**
- * Relisys Dark Glassify Theme - Admin Stylesheet
- * High-End Dark Glass Theme for Pterodactyl Admin Control Panel
+ * Relisys Dark Glassify Theme - Admin Control Panel Stylesheet
+ * High-End Dark Glass Theme matching the Client Dashboard Architecture
  * Author: Mohamed Khire
- * Version: 2.0.0
+ * Version: 2.1.0
  */
 
+/* ==========================================================================
+   1. Theme Variables & Color Tokens
+   ========================================================================== */
 :root {
   --relisys-bg: #08090e;
   --relisys-bg-secondary: #0d0f17;
   --relisys-surface: rgba(15, 18, 28, 0.72);
   --relisys-surface-elevated: rgba(23, 27, 42, 0.85);
+  --relisys-surface-hover: rgba(30, 36, 56, 0.75);
   --relisys-glass-border: rgba(255, 255, 255, 0.08);
   --relisys-glass-border-strong: rgba(255, 255, 255, 0.16);
+  --relisys-glass-highlight: rgba(255, 255, 255, 0.06);
+
   --relisys-accent: #6366f1;
   --relisys-accent-rgb: 99, 102, 241;
+  --relisys-accent-soft: rgba(99, 102, 241, 0.15);
   --relisys-accent-glow: rgba(99, 102, 241, 0.35);
+
+  --relisys-cyan: #00f0ff;
+  --relisys-success: #10b981;
+  --relisys-success-glow: rgba(16, 185, 129, 0.35);
+  --relisys-warning: #f59e0b;
+  --relisys-warning-glow: rgba(245, 158, 11, 0.35);
+  --relisys-danger: #f43f5e;
+  --relisys-danger-glow: rgba(244, 63, 94, 0.35);
+
   --relisys-text: #f8fafc;
   --relisys-text-muted: #94a3b8;
   --relisys-text-dim: #64748b;
-  --relisys-radius: 12px;
-  --relisys-radius-sm: 8px;
+
+  --relisys-radius: 14px;
+  --relisys-radius-sm: 10px;
+  --relisys-radius-xs: 6px;
+  --relisys-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--relisys-glass-border);
+  --relisys-sidebar-width: 260px;
 }
 
+/* ==========================================================================
+   2. Global Resets & Ambient Mesh Background
+   ========================================================================== */
 html,
 body,
 .skin-blue .wrapper,
 div.content-wrapper {
   background-color: var(--relisys-bg) !important;
+  background-image: 
+    radial-gradient(circle at 10% 12%, rgba(99, 102, 241, 0.07) 0%, transparent 40%),
+    radial-gradient(circle at 90% 85%, rgba(0, 240, 255, 0.05) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(13, 16, 25, 0.5) 0%, transparent 100%) !important;
+  background-attachment: fixed !important;
   color: var(--relisys-text) !important;
   font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  min-height: 100vh !important;
 }
 
-/* Header & Navbar */
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(8, 9, 14, 0.6);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.45);
+}
+
+/* ==========================================================================
+   3. Top Header & Navbar
+   ========================================================================== */
 .skin-blue .main-header .navbar,
+nav.navbar.navbar-static-top {
+  background: rgba(11, 14, 23, 0.8) !important;
+  backdrop-filter: blur(20px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(140%) !important;
+  border-bottom: 1px solid var(--relisys-glass-border) !important;
+  margin-left: var(--relisys-sidebar-width) !important;
+}
+
+/* Brand Logo Area */
 .skin-blue .main-header .logo,
-nav.navbar.navbar-static-top,
 a.logo {
-  background-color: rgba(11, 14, 23, 0.88) !important;
+  background: rgba(11, 14, 23, 0.9) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
   border-bottom: 1px solid var(--relisys-glass-border) !important;
+  border-right: 1px solid var(--relisys-glass-border) !important;
+  width: var(--relisys-sidebar-width) !important;
+  height: 50px !important;
+  line-height: 50px !important;
+  padding: 0 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  text-decoration: none !important;
 }
 
-.main-header .logo {
-  font-weight: 700 !important;
-  letter-spacing: -0.02em !important;
+.relisys-admin-brand-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.relisys-admin-logo-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--relisys-glass-border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px var(--relisys-accent-glow);
+  color: #ffffff;
+}
+
+.relisys-admin-r-logo {
+  width: 20px;
+  height: 20px;
+}
+
+.relisys-admin-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  text-align: left;
+}
+
+.relisys-brand-title {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #ffffff;
+}
+
+.relisys-brand-sub {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--relisys-text-dim);
+}
+
+/* Sidebar Toggle Hamburger */
+.main-header .sidebar-toggle {
+  color: var(--relisys-text-muted) !important;
+  transition: all 180ms ease !important;
+  border-radius: 8px !important;
+  margin: 6px !important;
+  padding: 8px 12px !important;
+}
+
+.main-header .sidebar-toggle:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
   color: #ffffff !important;
 }
 
-/* Sidebar Fixes: No text truncation, beautiful glass pill items */
+/* "Exit to Client Dashboard" Quick Action */
+.relisys-btn-client-exit {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: rgba(99, 102, 241, 0.15) !important;
+  border: 1px solid rgba(99, 102, 241, 0.35) !important;
+  color: #ffffff !important;
+  border-radius: 99px !important;
+  padding: 6px 14px !important;
+  margin: 8px 12px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.2) !important;
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.relisys-btn-client-exit:hover {
+  background: rgba(99, 102, 241, 0.3) !important;
+  border-color: rgba(99, 102, 241, 0.65) !important;
+  box-shadow: 0 4px 18px rgba(99, 102, 241, 0.35) !important;
+  transform: translateY(-1px) !important;
+  color: #ffffff !important;
+}
+
+/* User Account Dropdown in Navbar */
+.navbar-custom-menu .dropdown-menu {
+  background: rgba(13, 16, 25, 0.94) !important;
+  backdrop-filter: blur(24px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+  border: 1px solid var(--relisys-glass-border-strong) !important;
+  border-radius: var(--relisys-radius) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* ==========================================================================
+   4. The Admin Sidebar Navigation (Matching Client Panel)
+   ========================================================================== */
 aside.main-sidebar,
 .skin-blue .main-sidebar,
 .skin-blue .left-side {
   background: rgba(11, 14, 23, 0.82) !important;
-  backdrop-filter: blur(22px) !important;
-  -webkit-backdrop-filter: blur(22px) !important;
+  backdrop-filter: blur(24px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(140%) !important;
   border-right: 1px solid var(--relisys-glass-border) !important;
-  width: 250px !important;
+  width: var(--relisys-sidebar-width) !important;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4) !important;
 }
 
 .main-sidebar .sidebar {
-  padding: 10px 8px !important;
+  padding: 12px 10px !important;
 }
 
-/* Fix truncated headers */
+/* User Profile Panel in Sidebar */
+.main-sidebar .user-panel {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  border-radius: var(--relisys-radius-sm) !important;
+  padding: 12px !important;
+  margin-bottom: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.main-sidebar .user-panel > .image > img {
+  border-radius: 10px !important;
+  border: 1px solid var(--relisys-glass-border-strong) !important;
+}
+
+.main-sidebar .user-panel > .info {
+  padding-left: 10px !important;
+}
+
+.main-sidebar .user-panel > .info > p {
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  margin-bottom: 4px !important;
+}
+
+.main-sidebar .user-panel > .info > a {
+  color: var(--relisys-text-muted) !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.relisys-admin-pulse {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--relisys-success);
+  box-shadow: 0 0 8px var(--relisys-success);
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* Sidebar Search Box */
+.sidebar-form {
+  border-radius: var(--relisys-radius-sm) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  background: rgba(18, 22, 35, 0.7) !important;
+  margin: 10px 4px 18px !important;
+  overflow: hidden !important;
+}
+
+.sidebar-form input[type="text"] {
+  background: transparent !important;
+  color: #ffffff !important;
+  border: none !important;
+  font-size: 13px !important;
+}
+
+.sidebar-form .btn {
+  background: transparent !important;
+  color: var(--relisys-text-dim) !important;
+  border: none !important;
+}
+
+/* Section Category Headers */
 ul.sidebar-menu > li.header {
   background: transparent !important;
   color: var(--relisys-text-dim) !important;
   font-size: 10px !important;
+  font-weight: 700 !important;
   letter-spacing: 0.12em !important;
   text-transform: uppercase !important;
-  padding: 14px 12px 6px !important;
+  padding: 16px 14px 6px !important;
   white-space: normal !important;
   overflow: visible !important;
 }
 
+/* Sidebar Navigation Items */
 ul.sidebar-menu > li > a {
-  padding: 9px 12px !important;
-  margin: 2px 0 !important;
+  padding: 10px 14px !important;
+  margin: 3px 4px !important;
   border-radius: var(--relisys-radius-sm) !important;
   color: var(--relisys-text-muted) !important;
   display: flex !important;
   align-items: center !important;
-  gap: 10px !important;
+  gap: 12px !important;
   font-size: 13px !important;
   font-weight: 500 !important;
+  border: 1px solid transparent !important;
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+ul.sidebar-menu > li > a:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  transform: translateX(3px) !important;
+}
+
+/* Active Menu Item */
+ul.sidebar-menu > li.active > a,
+.skin-blue .sidebar-menu > li.active > a {
+  background: rgba(99, 102, 241, 0.18) !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.22) !important;
+  font-weight: 600 !important;
+}
+
+/* Sidebar Menu Icon Wrapper */
+.relisys-menu-icon-wrap {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--relisys-text-muted);
+  transition: all 180ms ease;
+}
+
+ul.sidebar-menu > li.active > a .relisys-menu-icon-wrap,
+ul.sidebar-menu > li > a:hover .relisys-menu-icon-wrap {
+  background: rgba(99, 102, 241, 0.25);
+  border-color: rgba(99, 102, 241, 0.5);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+}
+
+/* Treeview Submenus */
+ul.sidebar-menu .treeview-menu {
+  background: rgba(13, 16, 25, 0.6) !important;
+  border-radius: var(--relisys-radius-sm) !important;
+  margin: 4px 8px !important;
+  padding: 6px !important;
+  border-left: 2px solid rgba(99, 102, 241, 0.4) !important;
+}
+
+ul.sidebar-menu .treeview-menu > li > a {
+  padding: 8px 12px !important;
+  border-radius: 6px !important;
+  color: var(--relisys-text-muted) !important;
+  font-size: 12px !important;
+}
+
+ul.sidebar-menu .treeview-menu > li.active > a,
+ul.sidebar-menu .treeview-menu > li > a:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   5. Content Wrapper & Headers
+   ========================================================================== */
+.content-wrapper,
+.right-side {
+  margin-left: var(--relisys-sidebar-width) !important;
+  padding-bottom: 40px !important;
+}
+
+.content-header {
+  padding: 24px 28px 16px !important;
+}
+
+.content-header > h1 {
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+  color: #ffffff !important;
+  margin: 0 !important;
+}
+
+.content-header > h1 > small {
+  color: var(--relisys-text-muted) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  margin-left: 10px !important;
+}
+
+/* Breadcrumbs */
+.breadcrumb {
+  background: rgba(15, 18, 28, 0.6) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  border-radius: var(--relisys-radius-sm) !important;
+  backdrop-filter: blur(12px) !important;
+  padding: 6px 14px !important;
+  font-size: 12px !important;
+  list-style: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  margin: 0 !important;
+}
+
+.breadcrumb > li + li:before {
+  content: "/\00a0" !important;
+  padding: 0 4px !important;
+  color: var(--relisys-text-dim) !important;
+}
+
+.breadcrumb > li > a {
+  color: var(--relisys-text-muted) !important;
+}
+
+.breadcrumb > li.active {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* Main Content Area */
+.content {
+  padding: 16px 28px !important;
+}
+
+/* ==========================================================================
+   6. Cards & Boxes (Matching ServerRow & Stat Blocks)
+   ========================================================================== */
+div.box,
+div.nav-tabs-custom {
+  background: var(--relisys-surface) !important;
+  backdrop-filter: blur(20px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(140%) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  border-radius: var(--relisys-radius) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  color: var(--relisys-text) !important;
+  margin-bottom: 22px !important;
+  overflow: hidden !important;
+  transition: all 220ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+div.box:hover {
+  border-color: rgba(99, 102, 241, 0.35) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 0 20px rgba(99, 102, 241, 0.12) !important;
+}
+
+div.box.box-primary {
+  border-top: 3px solid var(--relisys-accent) !important;
+}
+
+div.box.box-success {
+  border-top: 3px solid var(--relisys-success) !important;
+}
+
+div.box.box-warning {
+  border-top: 3px solid var(--relisys-warning) !important;
+}
+
+div.box.box-danger {
+  border-top: 3px solid var(--relisys-danger) !important;
+}
+
+div.box.box-info {
+  border-top: 3px solid var(--relisys-cyan) !important;
+}
+
+div.box-header {
+  background: transparent !important;
+  border-bottom: 1px solid var(--relisys-glass-border) !important;
+  padding: 16px 20px !important;
+  color: #ffffff !important;
+}
+
+div.box-header .box-title {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em !important;
+  color: #ffffff !important;
+}
+
+div.box-body {
+  padding: 20px !important;
+}
+
+div.box-footer {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-top: 1px solid var(--relisys-glass-border) !important;
+  border-bottom-left-radius: var(--relisys-radius) !important;
+  border-bottom-right-radius: var(--relisys-radius) !important;
+  padding: 14px 20px !important;
+}
+
+/* ==========================================================================
+   7. Info Boxes & Small Boxes (Statics & Metrics Cards)
+   ========================================================================== */
+div.info-box {
+  background: var(--relisys-surface) !important;
+  backdrop-filter: blur(20px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(140%) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  border-radius: var(--relisys-radius) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  min-height: 84px !important;
+  margin-bottom: 20px !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  transition: all 220ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+div.info-box:hover {
+  border-color: rgba(99, 102, 241, 0.4) !important;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5), 0 0 18px rgba(99, 102, 241, 0.16) !important;
+  transform: translateY(-2px) !important;
+}
+
+.info-box-icon {
+  background: rgba(99, 102, 241, 0.16) !important;
+  color: #a5b4fc !important;
+  height: 84px !important;
+  line-height: 84px !important;
+  width: 84px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 30px !important;
+  border-right: 1px solid var(--relisys-glass-border) !important;
+}
+
+.info-box-content {
+  padding: 14px 18px !important;
+}
+
+.info-box-text {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: var(--relisys-text-dim) !important;
+}
+
+.info-box-number {
+  font-family: "JetBrains Mono", monospace !important;
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  margin-top: 4px !important;
+}
+
+/* Small Box Cards */
+div.small-box {
+  border-radius: var(--relisys-radius) !important;
+  overflow: hidden !important;
+  background: var(--relisys-surface) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  backdrop-filter: blur(18px) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+  transition: all 200ms ease !important;
+}
+
+div.small-box:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+}
+
+div.small-box .inner {
+  padding: 18px 20px !important;
+}
+
+div.small-box .inner h3 {
+  font-family: "JetBrains Mono", monospace !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  font-size: 28px !important;
+  margin: 0 0 6px !important;
+}
+
+div.small-box .inner p {
+  color: var(--relisys-text-muted) !important;
+  font-size: 13px !important;
+}
+
+div.small-box-footer {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-top: 1px solid var(--relisys-glass-border) !important;
+  color: var(--relisys-text-muted) !important;
+  padding: 8px 0 !important;
   transition: all 180ms ease !important;
 }
 
-ul.sidebar-menu > li > a:hover,
-ul.sidebar-menu > li.active > a,
-.skin-blue .sidebar-menu > li.active > a {
-  background: rgba(var(--relisys-accent-rgb), 0.14) !important;
+div.small-box-footer:hover {
+  background: rgba(99, 102, 241, 0.18) !important;
   color: #ffffff !important;
-  box-shadow: inset 0 0 0 1px rgba(var(--relisys-accent-rgb), 0.28) !important;
 }
 
-ul.sidebar-menu > li.active > a > i,
-ul.sidebar-menu > li > a:hover > i {
-  color: var(--relisys-accent) !important;
+/* ==========================================================================
+   8. Tables & Lists (Servers, Nodes, Users in Admin)
+   ========================================================================== */
+.relisys-table-responsive {
+  border-radius: var(--relisys-radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--relisys-glass-border);
 }
 
-/* Boxes & Cards */
-div.box,
-div.info-box,
-div.small-box,
-div.nav-tabs-custom {
-  background: var(--relisys-surface) !important;
-  backdrop-filter: blur(18px) !important;
-  -webkit-backdrop-filter: blur(18px) !important;
-  border: 1px solid var(--relisys-glass-border) !important;
-  border-radius: var(--relisys-radius) !important;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4) !important;
+table.table {
+  background: transparent !important;
+  margin-bottom: 0 !important;
+}
+
+table.table > thead > tr > th {
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: var(--relisys-text-dim) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  border-bottom: 1px solid var(--relisys-glass-border-strong) !important;
+  border-top: none !important;
+  padding: 13px 18px !important;
+  vertical-align: middle !important;
+}
+
+table.table > tbody > tr > td {
+  border-top: 1px solid var(--relisys-glass-border) !important;
+  border-bottom: none !important;
+  padding: 13px 18px !important;
   color: var(--relisys-text) !important;
+  font-size: 13px !important;
+  vertical-align: middle !important;
+  transition: background 140ms ease !important;
 }
 
-div.box-header.with-border {
-  border-bottom: 1px solid var(--relisys-glass-border) !important;
-  color: #ffffff !important;
+table.table-hover > tbody > tr:hover {
+  background: rgba(99, 102, 241, 0.08) !important;
 }
 
-/* Content wrapper & offset */
-.content-wrapper,
-.right-side {
-  margin-left: 250px !important;
+/* Monospace table data (IPs, Ports, UUIDs) */
+table.table code,
+table.table td:has(code) {
+  font-family: "JetBrains Mono", monospace !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  color: #e2e8f0 !important;
+  border-radius: 6px !important;
+  padding: 3px 6px !important;
 }
 
-/* Form Controls */
+/* Status Badges */
+.label {
+  border-radius: 99px !important;
+  padding: 4px 10px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+.label-success {
+  background: rgba(16, 185, 129, 0.18) !important;
+  border: 1px solid rgba(16, 185, 129, 0.45) !important;
+  color: #34d399 !important;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.15) !important;
+}
+
+.label-danger {
+  background: rgba(239, 68, 68, 0.18) !important;
+  border: 1px solid rgba(239, 68, 68, 0.45) !important;
+  color: #f87171 !important;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.15) !important;
+}
+
+.label-warning {
+  background: rgba(245, 158, 11, 0.18) !important;
+  border: 1px solid rgba(245, 158, 11, 0.45) !important;
+  color: #fbbf24 !important;
+}
+
+.label-primary {
+  background: rgba(99, 102, 241, 0.18) !important;
+  border: 1px solid rgba(99, 102, 241, 0.45) !important;
+  color: #a5b4fc !important;
+}
+
+.label-info {
+  background: rgba(0, 240, 255, 0.18) !important;
+  border: 1px solid rgba(0, 240, 255, 0.45) !important;
+  color: #38bdf8 !important;
+}
+
+/* ==========================================================================
+   9. Form Controls, Inputs, and Selects
+   ========================================================================== */
 .form-control {
   background: rgba(18, 22, 35, 0.75) !important;
   border: 1px solid var(--relisys-glass-border) !important;
   border-radius: var(--relisys-radius-sm) !important;
   color: #ffffff !important;
+  padding: 8px 14px !important;
+  height: auto !important;
+  font-size: 13px !important;
+  transition: all 180ms ease !important;
 }
 
 .form-control:focus {
   border-color: var(--relisys-accent) !important;
-  box-shadow: 0 0 0 3px rgba(var(--relisys-accent-rgb), 0.2) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+  background: rgba(22, 27, 44, 0.9) !important;
 }
 
-/* Buttons */
-.btn {
-  border-radius: var(--relisys-radius-sm) !important;
-  font-weight: 600 !important;
-  transition: all 180ms ease !important;
+.form-control::placeholder {
+  color: var(--relisys-text-dim) !important;
 }
 
-.btn-primary {
-  background: var(--relisys-accent) !important;
-  border: none !important;
-  box-shadow: 0 4px 14px var(--relisys-accent-glow) !important;
+.input-group-addon {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: var(--relisys-glass-border) !important;
+  color: var(--relisys-text-muted) !important;
 }
 
-.btn-primary:hover {
-  filter: brightness(1.15);
-}
-
-.btn-success {
-  background: #10b981 !important;
-  border: none !important;
-}
-
-.btn-danger {
-  background: #f43f5e !important;
-  border: none !important;
-}
-
-.btn-default {
-  background: rgba(255, 255, 255, 0.05) !important;
+/* Select2 Glass Dropdown */
+.select2-container--default .select2-selection--single,
+.select2-container--default .select2-selection--multiple {
+  background: rgba(18, 22, 35, 0.75) !important;
   border: 1px solid var(--relisys-glass-border) !important;
+  border-radius: var(--relisys-radius-sm) !important;
+  color: #ffffff !important;
+  min-height: 38px !important;
+}
+
+.select2-dropdown {
+  background: rgba(13, 16, 25, 0.96) !important;
+  border: 1px solid var(--relisys-glass-border-strong) !important;
+  border-radius: var(--relisys-radius-sm) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(24px) !important;
+}
+
+.select2-results__option {
   color: var(--relisys-text) !important;
 }
 
-/* Tables */
-table.table > tbody > tr > td,
-table.table > thead > tr > th {
-  border-color: var(--relisys-glass-border) !important;
-  vertical-align: middle !important;
+.select2-results__option--highlighted {
+  background: rgba(99, 102, 241, 0.25) !important;
+  color: #ffffff !important;
 }
 
-.table-hover > tbody > tr:hover {
-  background: rgba(255, 255, 255, 0.04) !important;
+/* ==========================================================================
+   10. Buttons & Actions (Matching Client Panel Buttons)
+   ========================================================================== */
+.btn {
+  border-radius: var(--relisys-radius-sm) !important;
+  font-weight: 600 !important;
+  padding: 8px 16px !important;
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
 }
 
-/* Admin Hero Banner */
+.btn-primary {
+  background: rgba(99, 102, 241, 0.2) !important;
+  border: 1px solid rgba(99, 102, 241, 0.5) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.2) !important;
+}
+
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus {
+  background: rgba(99, 102, 241, 0.35) !important;
+  border-color: rgba(99, 102, 241, 0.8) !important;
+  box-shadow: 0 4px 18px rgba(99, 102, 241, 0.4) !important;
+  transform: translateY(-1px) !important;
+  color: #ffffff !important;
+}
+
+.btn-success {
+  background: rgba(16, 185, 129, 0.18) !important;
+  border: 1px solid rgba(16, 185, 129, 0.5) !important;
+  color: #34d399 !important;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.15) !important;
+}
+
+.btn-success:hover,
+.btn-success:active,
+.btn-success:focus {
+  background: rgba(16, 185, 129, 0.32) !important;
+  border-color: rgba(16, 185, 129, 0.8) !important;
+  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.35) !important;
+  transform: translateY(-1px) !important;
+  color: #ffffff !important;
+}
+
+.btn-danger {
+  background: rgba(239, 68, 68, 0.18) !important;
+  border: 1px solid rgba(239, 68, 68, 0.5) !important;
+  color: #f87171 !important;
+  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.15) !important;
+}
+
+.btn-danger:hover,
+.btn-danger:active,
+.btn-danger:focus {
+  background: rgba(239, 68, 68, 0.32) !important;
+  border-color: rgba(239, 68, 68, 0.8) !important;
+  box-shadow: 0 4px 18px rgba(239, 68, 68, 0.35) !important;
+  transform: translateY(-1px) !important;
+  color: #ffffff !important;
+}
+
+.btn-warning {
+  background: rgba(245, 158, 11, 0.18) !important;
+  border: 1px solid rgba(245, 158, 11, 0.5) !important;
+  color: #fbbf24 !important;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.15) !important;
+}
+
+.btn-warning:hover {
+  background: rgba(245, 158, 11, 0.32) !important;
+  border-color: rgba(245, 158, 11, 0.8) !important;
+  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35) !important;
+  transform: translateY(-1px) !important;
+  color: #ffffff !important;
+}
+
+.btn-default {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  color: #f1f5f9 !important;
+}
+
+.btn-default:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   11. Tabs & Modals
+   ========================================================================== */
+.nav-tabs-custom {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.nav-tabs-custom > .nav-tabs {
+  background: rgba(13, 16, 25, 0.6) !important;
+  border-radius: 12px !important;
+  padding: 6px !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  display: flex !important;
+  gap: 6px !important;
+}
+
+.nav-tabs-custom > .nav-tabs > li > a {
+  border-radius: 8px !important;
+  color: var(--relisys-text-muted) !important;
+  border: 1px solid transparent !important;
+  padding: 8px 16px !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  transition: all 160ms ease !important;
+}
+
+.nav-tabs-custom > .nav-tabs > li > a:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.nav-tabs-custom > .nav-tabs > li.active > a {
+  background: rgba(99, 102, 241, 0.22) !important;
+  border-color: rgba(99, 102, 241, 0.45) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.2) !important;
+  font-weight: 600 !important;
+}
+
+/* Modals */
+.modal-content {
+  background: rgba(13, 16, 25, 0.94) !important;
+  backdrop-filter: blur(28px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(160%) !important;
+  border: 1px solid var(--relisys-glass-border-strong) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7) !important;
+  color: var(--relisys-text) !important;
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--relisys-glass-border) !important;
+  padding: 18px 22px !important;
+}
+
+.modal-footer {
+  border-top: 1px solid var(--relisys-glass-border) !important;
+  padding: 16px 22px !important;
+}
+
+/* ==========================================================================
+   12. Pagination
+   ========================================================================== */
+.pagination > li > a,
+.pagination > li > span {
+  background: rgba(15, 18, 28, 0.75) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  color: var(--relisys-text-muted) !important;
+  margin: 0 2px !important;
+  border-radius: 8px !important;
+}
+
+.pagination > li > a:hover {
+  background: rgba(99, 102, 241, 0.15) !important;
+  color: #ffffff !important;
+  border-color: rgba(99, 102, 241, 0.35) !important;
+}
+
+.pagination > .active > a,
+.pagination > .active > span {
+  background: rgba(99, 102, 241, 0.25) !important;
+  border-color: rgba(99, 102, 241, 0.5) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+/* ==========================================================================
+   13. Relisys Admin Control Center Hero & Preview
+   ========================================================================== */
 .relisys-admin-hero {
   background: linear-gradient(135deg, rgba(23, 27, 44, 0.9), rgba(11, 14, 23, 0.85));
   border: 1px solid var(--relisys-glass-border-strong);

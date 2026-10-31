@@ -1,0 +1,86 @@
+/**
+ * Relisys Admin Control Panel Engine
+ * Enhances Pterodactyl AdminLTE with Relisys Branding, Glass UI, and Modern Navigation
+ * Author: Mohamed Khire
+ * Version: 2.1.0
+ */
+(function () {
+  'use strict';
+
+  var RELISYS_R_SVG = '<svg viewBox="0 0 175 135" class="relisys-admin-r-logo"><path fill="currentColor" fill-rule="evenodd" d="M 97 62 L 96 62 L 95 61 L 68 61 L 67 62 L 65 62 L 59 68 L 59 69 L 55 73 L 55 74 L 51 78 L 51 79 L 46 84 L 46 85 L 42 89 L 42 90 L 38 94 L 38 95 L 33 100 L 33 101 L 29 105 L 29 106 L 24 111 L 24 112 L 19 117 L 19 118 L 16 121 L 51 121 L 52 120 L 54 120 L 55 119 L 56 119 L 57 118 L 57 117 L 61 113 L 61 112 L 65 108 L 65 107 L 69 103 L 69 102 L 73 98 L 73 97 L 78 92 L 78 91 L 83 86 L 83 85 L 91 76 L 91 75 L 93 73 L 93 72 L 95 70 L 95 69 L 97 66 Z M 15 16 L 17 18 L 18 18 L 35 35 L 36 35 L 43 42 L 81 42 L 82 43 L 106 43 L 107 44 L 109 44 L 110 45 L 111 45 L 117 51 L 117 52 L 118 53 L 118 61 L 117 62 L 116 65 L 113 68 L 113 69 L 108 74 L 108 75 L 101 82 L 101 83 L 96 88 L 96 89 L 95 90 L 95 92 L 96 93 L 96 94 L 99 97 L 99 98 L 103 102 L 103 103 L 109 109 L 109 110 L 113 114 L 113 115 L 118 120 L 119 120 L 120 121 L 161 121 L 160 120 L 160 119 L 156 115 L 156 114 L 150 108 L 150 107 L 146 103 L 146 102 L 141 97 L 141 96 L 136 91 L 136 90 L 132 86 L 132 83 L 133 82 L 136 81 L 139 78 L 140 78 L 144 74 L 144 73 L 147 70 L 147 69 L 148 68 L 148 67 L 151 62 L 151 60 L 152 59 L 152 54 L 153 53 L 153 47 L 152 46 L 152 42 L 151 41 L 151 38 L 150 37 L 150 36 L 149 35 L 148 32 L 144 28 L 144 27 L 137 21 L 136 21 L 133 19 L 131 19 L 130 18 L 128 18 L 127 17 L 124 17 L 123 16 Z"/></svg>';
+
+  function initAdminBranding() {
+    // 1. Brand Logo Enhancement
+    var logoEl = document.querySelector('.main-header a.logo');
+    if (logoEl && !logoEl.querySelector('.relisys-admin-brand-wrapper')) {
+      logoEl.innerHTML = 
+        '<div class="relisys-admin-brand-wrapper">' +
+        '  <div class="relisys-admin-logo-icon">' + RELISYS_R_SVG + '</div>' +
+        '  <div class="relisys-admin-brand-text">' +
+        '    <span class="relisys-brand-title">RELISYS</span>' +
+        '    <span class="relisys-brand-sub">CONTROL PLANE</span>' +
+        '  </div>' +
+        '</div>';
+    }
+
+    // 2. Add "Exit to Client Dashboard" button in Navbar
+    var customMenu = document.querySelector('.main-header .navbar-custom-menu ul.navbar-nav');
+    if (customMenu && !document.getElementById('relisys-exit-dashboard-btn')) {
+      var exitLi = document.createElement('li');
+      exitLi.id = 'relisys-exit-dashboard-btn';
+      exitLi.className = 'relisys-nav-action-item';
+      exitLi.innerHTML = 
+        '<a href="/" class="relisys-btn-client-exit" title="Exit to Client Panel">' +
+        '  <i class="fa fa-th-large"></i>' +
+        '  <span class="hidden-xs">Client Dashboard</span>' +
+        '</a>';
+      customMenu.insertBefore(exitLi, customMenu.firstChild);
+    }
+
+    // 3. User panel in sidebar
+    var userPanel = document.querySelector('.main-sidebar .user-panel');
+    if (userPanel && !userPanel.classList.contains('relisys-user-panel-enhanced')) {
+      userPanel.classList.add('relisys-user-panel-enhanced');
+      var statusSpan = userPanel.querySelector('.info a');
+      if (statusSpan && !statusSpan.querySelector('.relisys-admin-pulse')) {
+        var pulse = document.createElement('span');
+        pulse.className = 'relisys-admin-pulse';
+        statusSpan.prepend(pulse);
+      }
+    }
+
+    // 4. Enhance Sidebar Icons
+    var menuLinks = document.querySelectorAll('ul.sidebar-menu > li > a');
+    menuLinks.forEach(function (a) {
+      if (!a.querySelector('.relisys-menu-icon-wrap')) {
+        var icon = a.querySelector('i.fa');
+        if (icon) {
+          var wrap = document.createElement('span');
+          wrap.className = 'relisys-menu-icon-wrap';
+          icon.parentNode.insertBefore(wrap, icon);
+          wrap.appendChild(icon);
+        }
+      }
+    });
+
+    // 5. Enhance Tables
+    var tables = document.querySelectorAll('table.table');
+    tables.forEach(function (table) {
+      if (!table.parentElement.classList.contains('relisys-table-responsive')) {
+        var wrapper = document.createElement('div');
+        wrapper.className = 'relisys-table-responsive';
+        table.parentNode.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAdminBranding);
+  } else {
+    initAdminBranding();
+  }
+
+  // Periodic check in case of dynamic DOM loads
+  setInterval(initAdminBranding, 2000);
+})();

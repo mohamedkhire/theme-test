@@ -8,11 +8,11 @@
         </div>
         <div>
           <h2 class="relisys-admin-hero-title">Relisys Dark Glassify Control Center</h2>
-          <p class="relisys-admin-hero-desc">Next-generation Obsidian & Glassmorphism theme engine designed for Relisys Hosting.</p>
+          <p class="relisys-admin-hero-desc">Next-generation Obsidian &amp; Glassmorphism theme engine designed for Relisys Hosting.</p>
         </div>
       </div>
       <div class="relisys-admin-hero-right">
-        <span class="relisys-badge-version">v2.0.0</span>
+        <span class="relisys-badge-version">v2.1.0</span>
         <span class="relisys-badge-author">by Mohamed Khire</span>
       </div>
     </div>
@@ -23,11 +23,14 @@
   <!-- Theme Controls & Configuration -->
   <div class="col-xs-12 col-md-7">
     <div class="box relisys-admin-box">
-      <div class="box-header with-border">
-        <h3 class="box-title">Global Theme Defaults</h3>
+      <div class="box-header with-border" style="display: flex; align-items: center; justify-content: space-between;">
+        <h3 class="box-title">Global Theme Studio &amp; Defaults</h3>
+        <button type="button" class="btn btn-xs btn-default" onclick="window.RelisysTheme && window.RelisysTheme.openStudio()">
+          <i class="fa fa-sliders"></i> Open Full Studio Drawer
+        </button>
       </div>
       <div class="box-body">
-        <p class="text-muted" style="margin-bottom: 20px;">Configure default aesthetic parameters applied to the client dashboard and admin control panel.</p>
+        <p class="text-muted" style="margin-bottom: 20px;">Configure aesthetic parameters applied across the client dashboard and admin control panel.</p>
 
         <!-- Color Preset Buttons -->
         <div class="form-group">
@@ -58,7 +61,7 @@
         <div class="form-group" style="margin-top: 15px;">
           <label class="control-label">Custom Accent Hex</label>
           <div class="input-group">
-            <span class="input-group-addon" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1);"><i class="fa fa-paint-brush"></i></span>
+            <span class="input-group-addon"><i class="fa fa-paint-brush"></i></span>
             <input type="text" id="relisys-admin-hex-input" class="form-control" value="#6366f1" placeholder="#6366f1">
           </div>
         </div>
@@ -67,19 +70,19 @@
         <div class="form-group" style="margin-top: 15px;">
           <label class="control-label">Discord Community Link</label>
           <div class="input-group">
-            <span class="input-group-addon" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1);"><i class="fa fa-comments"></i></span>
+            <span class="input-group-addon"><i class="fa fa-comments"></i></span>
             <input type="url" id="relisys-admin-discord-input" class="form-control" value="https://discord.gg" placeholder="https://discord.gg/yourserver">
           </div>
         </div>
 
-        <!-- Feature Toggles -->
+        <!-- Interactive Feature Toggles -->
         <div class="form-group" style="margin-top: 20px;">
           <label class="control-label">Engine Features</label>
           <div class="relisys-feature-list">
             <div class="relisys-feature-item">
               <div>
                 <strong>Modern Glass Sidebar</strong>
-                <p class="text-muted" style="margin: 0; font-size: 12px;">Replaces default top tabs with responsive floating glass sidebar.</p>
+                <p class="text-muted" style="margin: 0; font-size: 12px;">Responsive floating glass sidebar with instant SPA server switching.</p>
               </div>
               <span class="label label-success">Active</span>
             </div>
@@ -88,20 +91,25 @@
                 <strong>Command Palette (Ctrl+K)</strong>
                 <p class="text-muted" style="margin: 0; font-size: 12px;">Instant keyboard search across all servers and sub-pages.</p>
               </div>
-              <span class="label label-success">Active</span>
+              <label style="margin: 0; cursor: pointer;">
+                <input type="checkbox" id="relisys-admin-cmd-toggle" checked> <span class="label label-primary">Enabled</span>
+              </label>
             </div>
             <div class="relisys-feature-item">
               <div>
                 <strong>Haptic Audio SFX</strong>
                 <p class="text-muted" style="margin: 0; font-size: 12px;">Synthesizes tactile audio feedback on clicks and power buttons.</p>
               </div>
-              <span class="label label-success">Active</span>
+              <label style="margin: 0; cursor: pointer;">
+                <input type="checkbox" id="relisys-admin-sfx-toggle" checked> <span class="label label-primary">Enabled</span>
+              </label>
             </div>
           </div>
         </div>
       </div>
-      <div class="box-footer">
+      <div class="box-footer" style="display: flex; gap: 10px;">
         <button type="button" class="btn btn-primary" id="relisys-save-btn"><i class="fa fa-save"></i> Save Settings</button>
+        <button type="button" class="btn btn-default" id="relisys-reset-admin-btn"><i class="fa fa-undo"></i> Reset Defaults</button>
       </div>
     </div>
   </div>
@@ -110,7 +118,7 @@
   <div class="col-xs-12 col-md-5">
     <div class="box relisys-admin-box">
       <div class="box-header with-border">
-        <h3 class="box-title">Live Preview Card</h3>
+        <h3 class="box-title">Live Interactive Preview Card</h3>
       </div>
       <div class="box-body">
         <div class="relisys-preview-card" id="relisys-live-card">
@@ -145,17 +153,17 @@
           </div>
 
           <div style="display: flex; gap: 8px; margin-top: 20px;">
-            <button class="btn btn-sm btn-success" style="flex: 1;"><i class="fa fa-play"></i> Start</button>
-            <button class="btn btn-sm btn-warning" style="flex: 1;"><i class="fa fa-refresh"></i> Restart</button>
-            <button class="btn btn-sm btn-danger" style="flex: 1;"><i class="fa fa-stop"></i> Stop</button>
+            <button type="button" class="btn btn-sm btn-success" style="flex: 1;"><i class="fa fa-play"></i> Start</button>
+            <button type="button" class="btn btn-sm btn-warning" style="flex: 1;"><i class="fa fa-refresh"></i> Restart</button>
+            <button type="button" class="btn btn-sm btn-danger" style="flex: 1;"><i class="fa fa-stop"></i> Stop</button>
           </div>
         </div>
 
         <div style="margin-top: 24px; padding: 14px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
           <h5 style="color: #ffffff; margin-top: 0; font-weight: 600;"><i class="fa fa-info-circle"></i> Framework Integration</h5>
           <p style="color: #94a3b8; font-size: 12px; margin-bottom: 4px;">Blueprint Identifier: <code>relisys</code></p>
-          <p style="color: #94a3b8; font-size: 12px; margin-bottom: 4px;">Target: <code>beta-2026-08</code></p>
-          <p style="color: #94a3b8; font-size: 12px; margin-bottom: 0;">Compatibility: Pterodactyl 1.15.x / 1.11.x</p>
+          <p style="color: #94a3b8; font-size: 12px; margin-bottom: 4px;">Version: <code>v2.1.0 (beta-2026-08)</code></p>
+          <p style="color: #94a3b8; font-size: 12px; margin-bottom: 0;">Compatibility: Pterodactyl 1.11.x+</p>
         </div>
       </div>
     </div>
@@ -166,9 +174,28 @@
 document.addEventListener('DOMContentLoaded', function () {
   var colorBtns = document.querySelectorAll('.relisys-admin-color-btn');
   var hexInput = document.getElementById('relisys-admin-hex-input');
+  var discordInput = document.getElementById('relisys-admin-discord-input');
+  var cmdToggle = document.getElementById('relisys-admin-cmd-toggle');
+  var sfxToggle = document.getElementById('relisys-admin-sfx-toggle');
   var card = document.getElementById('relisys-live-card');
 
-  function updateColor(color) {
+  function syncFromEngine() {
+    if (!window.RelisysTheme || !window.RelisysTheme.getSettings) return;
+    var s = window.RelisysTheme.getSettings();
+    if (s.accentColor) {
+      hexInput.value = s.accentColor;
+      if (card) card.style.setProperty('--relisys-accent', s.accentColor);
+      colorBtns.forEach(function (b) {
+        var c = (b.getAttribute('data-color') || '').toLowerCase();
+        b.classList.toggle('active', c === s.accentColor.toLowerCase());
+      });
+    }
+    if (s.discordUrl && discordInput) discordInput.value = s.discordUrl;
+    if (cmdToggle) cmdToggle.checked = s.commandPaletteEnabled !== false;
+    if (sfxToggle) sfxToggle.checked = !!s.soundEffects;
+  }
+
+  function applyColor(color) {
     if (card) {
       card.style.setProperty('--relisys-accent', color);
     }
@@ -183,19 +210,34 @@ document.addEventListener('DOMContentLoaded', function () {
       btn.classList.add('active');
       var c = btn.getAttribute('data-color');
       hexInput.value = c;
-      updateColor(c);
+      applyColor(c);
+      if (window.RelisysTheme && window.RelisysTheme.playSound) window.RelisysTheme.playSound('click');
     });
   });
 
   hexInput.addEventListener('input', function (e) {
     var val = e.target.value.trim();
     if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(val)) {
-      updateColor(val);
+      applyColor(val);
     }
   });
 
   document.getElementById('relisys-save-btn').addEventListener('click', function () {
     var btn = this;
+    var hexVal = hexInput.value.trim();
+    var payload = {
+      discordUrl: discordInput ? discordInput.value.trim() : 'https://discord.gg',
+      commandPaletteEnabled: cmdToggle ? cmdToggle.checked : true,
+      soundEffects: sfxToggle ? sfxToggle.checked : true
+    };
+    if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(hexVal)) {
+      payload.accentColor = hexVal;
+    }
+    if (window.RelisysTheme && window.RelisysTheme.applySettings) {
+      window.RelisysTheme.applySettings(payload);
+      if (window.RelisysTheme.playSound) window.RelisysTheme.playSound('start');
+    }
+
     var original = btn.innerHTML;
     btn.innerHTML = '<i class="fa fa-check"></i> Saved Successfully!';
     btn.classList.remove('btn-primary');
@@ -206,5 +248,25 @@ document.addEventListener('DOMContentLoaded', function () {
       btn.classList.add('btn-primary');
     }, 2000);
   });
+
+  var resetBtn = document.getElementById('relisys-reset-admin-btn');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', function () {
+      if (window.RelisysTheme && window.RelisysTheme.applySettings) {
+        window.RelisysTheme.applySettings({
+          preset: 'indigo',
+          accentColor: '#6366f1',
+          discordUrl: 'https://discord.gg',
+          commandPaletteEnabled: true,
+          soundEffects: true
+        });
+        syncFromEngine();
+        if (window.RelisysTheme.playSound) window.RelisysTheme.playSound('toggle');
+      }
+    });
+  }
+
+  window.addEventListener('relisys:theme-changed', syncFromEngine);
+  syncFromEngine();
 });
 </script>

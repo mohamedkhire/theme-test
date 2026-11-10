@@ -1,6 +1,6 @@
 /**
  * Relisys Modern Glass Sidebar Navigation
- * Next-Generation Navigation Architecture for Pterodactyl Panel
+ * Zero-reload SPA routing, live server context & status sync, and responsive layout
  * Author: Mohamed Khire
  * Version: 2.1.0
  */
@@ -9,7 +9,6 @@
 
   var SIDEBAR_COLLAPSED_KEY = 'relisys_sidebar_collapsed';
 
-  // SVG Icons
   var ICONS = {
     relisysLogo: '<svg viewBox="0 0 175 135" class="relisys-icon-logo"><path fill="currentColor" fill-rule="evenodd" d="M 97 62 L 96 62 L 95 61 L 68 61 L 67 62 L 65 62 L 59 68 L 59 69 L 55 73 L 55 74 L 51 78 L 51 79 L 46 84 L 46 85 L 42 89 L 42 90 L 38 94 L 38 95 L 33 100 L 33 101 L 29 105 L 29 106 L 24 111 L 24 112 L 19 117 L 19 118 L 16 121 L 51 121 L 52 120 L 54 120 L 55 119 L 56 119 L 57 118 L 57 117 L 61 113 L 61 112 L 65 108 L 65 107 L 69 103 L 69 102 L 73 98 L 73 97 L 78 92 L 78 91 L 83 86 L 83 85 L 91 76 L 91 75 L 93 73 L 93 72 L 95 70 L 95 69 L 97 66 Z M 15 16 L 17 18 L 18 18 L 35 35 L 36 35 L 43 42 L 81 42 L 82 43 L 106 43 L 107 44 L 109 44 L 110 45 L 111 45 L 117 51 L 117 52 L 118 53 L 118 61 L 117 62 L 116 65 L 113 68 L 113 69 L 108 74 L 108 75 L 101 82 L 101 83 L 96 88 L 96 89 L 95 90 L 95 92 L 96 93 L 96 94 L 99 97 L 99 98 L 103 102 L 103 103 L 109 109 L 109 110 L 113 114 L 113 115 L 118 120 L 119 120 L 120 121 L 161 121 L 160 120 L 160 119 L 156 115 L 156 114 L 150 108 L 150 107 L 146 103 L 146 102 L 141 97 L 141 96 L 136 91 L 136 90 L 132 86 L 132 83 L 133 82 L 136 81 L 139 78 L 140 78 L 144 74 L 144 73 L 147 70 L 147 69 L 148 68 L 148 67 L 151 62 L 151 60 L 152 59 L 152 54 L 153 53 L 153 47 L 152 46 L 152 42 L 151 41 L 151 38 L 150 37 L 150 36 L 149 35 L 148 32 L 144 28 L 144 27 L 137 21 L 136 21 L 133 19 L 131 19 L 130 18 L 128 18 L 127 17 L 124 17 L 123 16 Z"/></svg>',
     servers: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>',
@@ -35,37 +34,84 @@
 
   var isCollapsed = localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true';
 
-  function getServerInfoFromDom() {
+  var GENERIC_TITLES = [
+    'file manager', 'databases', 'schedules', 'users', 'backups',
+    'network', 'startup', 'settings', 'activity', 'console', 'relisys'
+  ];
+
+  function extractServerInfo() {
     var pathname = window.location.pathname;
     var match = pathname.match(/\/server\/([a-zA-Z0-9_-]+)/);
     if (!match) return null;
     var serverId = match[1];
 
-    var nameEl = document.querySelector('h1, h2, div[class*="ServerRow"]');
-    var serverName = 'Active Server';
-    if (nameEl && nameEl.textContent) {
-      var txt = nameEl.textContent.trim();
-      if (txt.length > 0 && txt.length < 50) serverName = txt;
+    var serverName = '';
+    // 1. Check document.title (Pterodactyl sets "<Server Name> | <Panel Name>")
+    if (document.title && document.title.indexOf('|') !== -1) {
+      var candidate = document.title.split('|')[0].trim();
+      if (candidate && GENERIC_TITLES.indexOf(candidate.toLowerCase()) === -1) {
+        serverName = candidate;
+      }
     }
 
-    var ipMatch = document.body.innerText.match(/\b(?:\d{1,3}\.){3}\d{1,3}:\d{2,5}\b/);
+    // 2. Check heading inside #app
+    if (!serverName) {
+      var headings = document.querySelectorAll('#app h1, .showcase-breadcrumbs span:last-child');
+      for (var i = 0; i < headings.length; i++) {
+        var txt = (headings[i].textContent || '').trim();
+        if (txt && txt.length < 48 && GENERIC_TITLES.indexOf(txt.toLowerCase()) === -1) {
+          serverName = txt;
+          break;
+        }
+      }
+    }
+    if (!serverName) serverName = 'Server ' + serverId.slice(0, 8);
+
+    // Extract IP:Port from stat blocks or page text
+    var bodyText = document.body ? (document.body.innerText || '') : '';
+    var ipMatch = bodyText.match(/\b(?:\d{1,3}\.){3}\d{1,3}:\d{2,5}\b/);
     var serverAddress = ipMatch ? ipMatch[0] : '';
+
+    // Determine live status from power buttons or text
+    var status = 'online';
+    var stopBtn = document.querySelector('button[data-relisys-power="stop"]');
+    var startBtn = document.querySelector('button[data-relisys-power="start"]');
+    if (stopBtn && stopBtn.disabled && startBtn && !startBtn.disabled) {
+      status = 'offline';
+    } else if (bodyText.indexOf('Offline') !== -1 && stopBtn && stopBtn.disabled) {
+      status = 'offline';
+    }
 
     return {
       id: serverId,
       name: serverName,
-      address: serverAddress
+      address: serverAddress,
+      status: status
     };
   }
 
-  function isRouteActive(path) {
-    var cur = window.location.pathname;
-    if (path === '/') return cur === '/' || cur === '';
-    return cur.indexOf(path) === 0;
+  function isNavLinkActive(linkHref, currentServerId) {
+    var cur = window.location.pathname.replace(/\/+$/, '') || '/';
+    var target = (linkHref || '').replace(/\/+$/, '') || '/';
+
+    if (target === '/') {
+      return cur === '/';
+    }
+    if (currentServerId && target === '/server/' + currentServerId) {
+      return cur === target;
+    }
+    return cur === target || cur.indexOf(target + '/') === 0;
+  }
+
+  function getDiscordUrl() {
+    if (window.RelisysTheme && typeof window.RelisysTheme.getSettings === 'function') {
+      var s = window.RelisysTheme.getSettings();
+      if (s && s.discordUrl) return s.discordUrl;
+    }
+    return 'https://discord.gg';
   }
 
   function createSidebar() {
-    // Check if on login or password reset page
     if (window.location.pathname.indexOf('/auth/') !== -1) {
       var existing = document.getElementById('relisys-sidebar-root');
       if (existing) existing.remove();
@@ -79,27 +125,30 @@
     container.id = 'relisys-sidebar-root';
     container.className = 'relisys-sidebar-wrapper' + (isCollapsed ? ' collapsed' : '');
 
-    var server = getServerInfoFromDom();
+    var server = extractServerInfo();
+    container.setAttribute('data-server-id', server ? server.id : '');
+
+    var showAdmin = !window.RelisysTheme || !window.RelisysTheme.isRootAdmin || window.RelisysTheme.isRootAdmin();
 
     var html =
       '<div class="relisys-sidebar-glass">' +
       '  <!-- Brand Header -->' +
       '  <div class="relisys-sb-brand">' +
-      '    <a href="/" class="relisys-sb-brand-link" title="Relisys Dashboard">' +
+      '    <a href="/" class="relisys-sb-brand-link" data-spa-link="true" title="Relisys Dashboard">' +
       '      <div class="relisys-sb-logo">' + ICONS.relisysLogo + '</div>' +
       '      <div class="relisys-sb-brand-text">' +
       '        <span class="relisys-sb-brand-title">RELISYS</span>' +
       '        <span class="relisys-sb-brand-sub">CONTROL PLANE</span>' +
       '      </div>' +
       '    </a>' +
-      '    <button type="button" class="relisys-sb-collapse-btn" id="relisys-sb-toggle-btn" title="' + (isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar') + '">' +
+      '    <button type="button" class="relisys-sb-collapse-btn relisys-btn-processed" id="relisys-sb-toggle-btn" title="' + (isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar') + '">' +
       '      ' + (isCollapsed ? ICONS.expand : ICONS.collapse) +
       '    </button>' +
       '  </div>' +
 
       '  <!-- Command Palette Trigger -->' +
       '  <div class="relisys-sb-search-wrap">' +
-      '    <button type="button" class="relisys-sb-search-btn" id="relisys-sb-cmd-trigger" title="Quick Jump (Ctrl+K)">' +
+      '    <button type="button" class="relisys-sb-search-btn relisys-btn-processed" id="relisys-sb-cmd-trigger" title="Quick Jump (Ctrl+K)">' +
       '      ' + ICONS.search +
       '      <span class="relisys-sb-search-label">Quick Jump...</span>' +
       '      <kbd class="relisys-sb-search-kbd">Ctrl+K</kbd>' +
@@ -113,29 +162,30 @@
       '    <div class="relisys-sb-section">' +
       '      <div class="relisys-sb-section-title">PLATFORM</div>' +
       '      <ul class="relisys-sb-nav-list">' +
-      '        <li class="relisys-sb-nav-item' + (isRouteActive('/') && !server ? ' active' : '') + '">' +
-      '          <a href="/" class="relisys-sb-nav-link" title="Servers Dashboard">' +
+      '        <li class="relisys-sb-nav-item' + (isNavLinkActive('/', server && server.id) ? ' active' : '') + '">' +
+      '          <a href="/" class="relisys-sb-nav-link" data-spa-link="true" title="Servers Dashboard">' +
       '            <span class="relisys-sb-nav-icon">' + ICONS.servers + '</span>' +
       '            <span class="relisys-sb-nav-text">Servers</span>' +
       '          </a>' +
       '        </li>' +
-      '        <li class="relisys-sb-nav-item' + (isRouteActive('/account') ? ' active' : '') + '">' +
-      '          <a href="/account" class="relisys-sb-nav-link" title="Account Settings">' +
+      '        <li class="relisys-sb-nav-item' + (isNavLinkActive('/account', server && server.id) ? ' active' : '') + '">' +
+      '          <a href="/account" class="relisys-sb-nav-link" data-spa-link="true" title="Account Settings">' +
       '            <span class="relisys-sb-nav-icon">' + ICONS.account + '</span>' +
       '            <span class="relisys-sb-nav-text">Account</span>' +
       '          </a>' +
       '        </li>' +
-      '        <li class="relisys-sb-nav-item' + (isRouteActive('/admin') ? ' active' : '') + '" id="relisys-sb-admin-item">' +
+      (showAdmin ?
+      '        <li class="relisys-sb-nav-item' + (isNavLinkActive('/admin', server && server.id) ? ' active' : '') + '" id="relisys-sb-admin-item">' +
       '          <a href="/admin" class="relisys-sb-nav-link" title="Admin Control Panel">' +
       '            <span class="relisys-sb-nav-icon relisys-accent-icon">' + ICONS.admin + '</span>' +
       '            <span class="relisys-sb-nav-text">Admin Panel</span>' +
       '          </a>' +
-      '        </li>' +
+      '        </li>' : '') +
       '      </ul>' +
       '    </div>';
 
-    // If viewing a server, inject server sub-navigation
     if (server) {
+      var sid = server.id;
       html +=
         '    <!-- Server Context Section -->' +
         '    <div class="relisys-sb-section relisys-sb-server-context">' +
@@ -144,74 +194,73 @@
         '      <!-- Server Mini Card -->' +
         '      <div class="relisys-sb-server-badge">' +
         '        <div class="relisys-sb-server-top">' +
-        '          <span class="relisys-sb-server-status-dot online"></span>' +
-        '          <span class="relisys-sb-server-name" title="' + server.name + '">' + server.name + '</span>' +
+        '          <span class="relisys-sb-server-status-dot ' + server.status + '" id="relisys-sb-live-dot"></span>' +
+        '          <span class="relisys-sb-server-name" id="relisys-sb-live-name" title="' + server.name + '">' + server.name + '</span>' +
         '        </div>' +
-        (server.address ?
-        '        <div class="relisys-sb-server-ip" id="relisys-sb-copy-ip" data-ip="' + server.address + '" title="Click to copy IP">' +
-        '          <span>' + server.address + '</span>' +
+        '        <div class="relisys-sb-server-ip" id="relisys-sb-copy-ip" data-ip="' + server.address + '" title="Click to copy IP" style="display:' + (server.address ? 'flex' : 'none') + ';">' +
+        '          <span id="relisys-sb-live-ip">' + server.address + '</span>' +
         '          ' + ICONS.copy +
-        '        </div>' : '') +
+        '        </div>' +
         '      </div>' +
 
         '      <!-- Server Sub Tabs -->' +
         '      <ul class="relisys-sb-nav-list">' +
-        '        <li class="relisys-sb-nav-item' + (window.location.pathname === '/server/' + server.id ? ' active' : '') + '">' +
-        '          <a href="/server/' + server.id + '" class="relisys-sb-nav-link" title="Terminal Console">' +
+        '        <li class="relisys-sb-nav-item' + (isNavLinkActive('/server/' + sid, sid) ? ' active' : '') + '">' +
+        '          <a href="/server/' + sid + '" class="relisys-sb-nav-link" data-spa-link="true" title="Terminal Console">' +
         '            <span class="relisys-sb-nav-icon">' + ICONS.terminal + '</span>' +
         '            <span class="relisys-sb-nav-text">Terminal</span>' +
         '          </a>' +
         '        </li>' +
-        '        <li class="relisys-sb-nav-item' + (isRouteActive('/server/' + server.id + '/files') ? ' active' : '') + '">' +
-        '          <a href="/server/' + server.id + '/files" class="relisys-sb-nav-link" title="File Manager">' +
+        '        <li class="relisys-sb-nav-item' + (isNavLinkActive('/server/' + sid + '/files', sid) ? ' active' : '') + '">' +
+        '          <a href="/server/' + sid + '/files" class="relisys-sb-nav-link" data-spa-link="true" title="File Manager">' +
         '            <span class="relisys-sb-nav-icon">' + ICONS.files + '</span>' +
         '            <span class="relisys-sb-nav-text">Files</span>' +
         '          </a>' +
         '        </li>' +
-        '        <li class="relisys-sb-nav-item' + (isRouteActive('/server/' + server.id + '/databases') ? ' active' : '') + '">' +
-        '          <a href="/server/' + server.id + '/databases" class="relisys-sb-nav-link" title="Databases">' +
+        '        <li class="relisys-sb-nav-item' + (isNavLinkActive('/server/' + sid + '/databases', sid) ? ' active' : '') + '">' +
+        '          <a href="/server/' + sid + '/databases" class="relisys-sb-nav-link" data-spa-link="true" title="Databases">' +
         '            <span class="relisys-sb-nav-icon">' + ICONS.databases + '</span>' +
         '            <span class="relisys-sb-nav-text">Databases</span>' +
         '          </a>' +
         '        </li>' +
-        '        <li class="relisys-sb-nav-item' + (isRouteActive('/server/' + server.id + '/schedules') ? ' active' : '') + '">' +
-        '          <a href="/server/' + server.id + '/schedules" class="relisys-sb-nav-link" title="Schedules">' +
+        '        <li class="relisys-sb-nav-item' + (isNavLinkActive('/server/' + sid + '/schedules', sid) ? ' active' : '') + '">' +
+        '          <a href="/server/' + sid + '/schedules" class="relisys-sb-nav-link" data-spa-link="true" title="Schedules">' +
         '            <span class="relisys-sb-nav-icon">' + ICONS.schedules + '</span>' +
         '            <span class="relisys-sb-nav-text">Schedules</span>' +
         '          </a>' +
         '        </li>' +
-        '        <li class="relisys-sb-nav-item' + (isRouteActive('/server/' + server.id + '/users') ? ' active' : '') + '">' +
-        '          <a href="/server/' + server.id + '/users" class="relisys-sb-nav-link" title="Users & Access">' +
+        '        <li class="relisys-sb-nav-item' + (isNavLinkActive('/server/' + sid + '/users', sid) ? ' active' : '') + '">' +
+        '          <a href="/server/' + sid + '/users" class="relisys-sb-nav-link" data-spa-link="true" title="Users & Access">' +
         '            <span class="relisys-sb-nav-icon">' + ICONS.users + '</span>' +
         '            <span class="relisys-sb-nav-text">Users</span>' +
         '          </a>' +
         '        </li>' +
-        '        <li class="relisys-sb-nav-item' + (isRouteActive('/server/' + server.id + '/backups') ? ' active' : '') + '">' +
-        '          <a href="/server/' + server.id + '/backups" class="relisys-sb-nav-link" title="Backups">' +
+        '        <li class="relisys-sb-nav-item' + (isNavLinkActive('/server/' + sid + '/backups', sid) ? ' active' : '') + '">' +
+        '          <a href="/server/' + sid + '/backups" class="relisys-sb-nav-link" data-spa-link="true" title="Backups">' +
         '            <span class="relisys-sb-nav-icon">' + ICONS.backups + '</span>' +
         '            <span class="relisys-sb-nav-text">Backups</span>' +
         '          </a>' +
         '        </li>' +
-        '        <li class="relisys-sb-nav-item' + (isRouteActive('/server/' + server.id + '/network') ? ' active' : '') + '">' +
-        '          <a href="/server/' + server.id + '/network" class="relisys-sb-nav-link" title="Network Allocations">' +
+        '        <li class="relisys-sb-nav-item' + (isNavLinkActive('/server/' + sid + '/network', sid) ? ' active' : '') + '">' +
+        '          <a href="/server/' + sid + '/network" class="relisys-sb-nav-link" data-spa-link="true" title="Network Allocations">' +
         '            <span class="relisys-sb-nav-icon">' + ICONS.network + '</span>' +
         '            <span class="relisys-sb-nav-text">Network</span>' +
         '          </a>' +
         '        </li>' +
-        '        <li class="relisys-sb-nav-item' + (isRouteActive('/server/' + server.id + '/startup') ? ' active' : '') + '">' +
-        '          <a href="/server/' + server.id + '/startup" class="relisys-sb-nav-link" title="Startup Parameters">' +
+        '        <li class="relisys-sb-nav-item' + (isNavLinkActive('/server/' + sid + '/startup', sid) ? ' active' : '') + '">' +
+        '          <a href="/server/' + sid + '/startup" class="relisys-sb-nav-link" data-spa-link="true" title="Startup Parameters">' +
         '            <span class="relisys-sb-nav-icon">' + ICONS.startup + '</span>' +
         '            <span class="relisys-sb-nav-text">Startup</span>' +
         '          </a>' +
         '        </li>' +
-        '        <li class="relisys-sb-nav-item' + (isRouteActive('/server/' + server.id + '/settings') ? ' active' : '') + '">' +
-        '          <a href="/server/' + server.id + '/settings" class="relisys-sb-nav-link" title="Server Settings">' +
+        '        <li class="relisys-sb-nav-item' + (isNavLinkActive('/server/' + sid + '/settings', sid) ? ' active' : '') + '">' +
+        '          <a href="/server/' + sid + '/settings" class="relisys-sb-nav-link" data-spa-link="true" title="Server Settings">' +
         '            <span class="relisys-sb-nav-icon">' + ICONS.settings + '</span>' +
         '            <span class="relisys-sb-nav-text">Settings</span>' +
         '          </a>' +
         '        </li>' +
-        '        <li class="relisys-sb-nav-item' + (isRouteActive('/server/' + server.id + '/activity') ? ' active' : '') + '">' +
-        '          <a href="/server/' + server.id + '/activity" class="relisys-sb-nav-link" title="Activity Logs">' +
+        '        <li class="relisys-sb-nav-item' + (isNavLinkActive('/server/' + sid + '/activity', sid) ? ' active' : '') + '">' +
+        '          <a href="/server/' + sid + '/activity" class="relisys-sb-nav-link" data-spa-link="true" title="Activity Logs">' +
         '            <span class="relisys-sb-nav-icon">' + ICONS.activity + '</span>' +
         '            <span class="relisys-sb-nav-text">Activity</span>' +
         '          </a>' +
@@ -226,11 +275,11 @@
       '  <!-- Footer Utility Section -->' +
       '  <div class="relisys-sb-footer">' +
       '    <div class="relisys-sb-actions">' +
-      '      <button type="button" class="relisys-sb-action-btn" id="relisys-sb-studio-btn" title="Theme Studio">' +
+      '      <button type="button" class="relisys-sb-action-btn relisys-btn-processed" id="relisys-sb-studio-btn" title="Theme Studio">' +
       '        ' + ICONS.studio +
       '        <span class="relisys-sb-action-label">Theme Studio</span>' +
       '      </button>' +
-      '      <a href="https://discord.gg" target="_blank" rel="noopener" class="relisys-sb-action-btn" title="Join Discord Community">' +
+      '      <a href="' + getDiscordUrl() + '" id="relisys-sb-discord-link" target="_blank" rel="noopener" class="relisys-sb-action-btn" title="Join Discord Community">' +
       '        ' + ICONS.discord +
       '        <span class="relisys-sb-action-label">Community</span>' +
       '      </a>' +
@@ -242,6 +291,23 @@
     document.body.prepend(container);
     document.body.classList.add('has-relisys-sidebar');
     if (isCollapsed) document.body.classList.add('relisys-sidebar-is-collapsed');
+
+    // Intercept SPA links inside sidebar so navigation is instant without full page reload
+    container.querySelectorAll('a[data-spa-link="true"]').forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        var href = link.getAttribute('href');
+        if (href && document.getElementById('app') && window.RelisysTheme && window.RelisysTheme.navigateTo) {
+          e.preventDefault();
+          if (window.RelisysTheme.playSound) window.RelisysTheme.playSound('click');
+          window.RelisysTheme.navigateTo(href);
+          // Close mobile drawer if open
+          container.classList.remove('mobile-open');
+          var overlay = document.getElementById('relisys-mobile-overlay');
+          if (overlay) overlay.classList.remove('active');
+        }
+      });
+    });
 
     // Attach event listeners
     var toggleBtn = document.getElementById('relisys-sb-toggle-btn');
@@ -282,27 +348,28 @@
         if (ip && navigator.clipboard) {
           navigator.clipboard.writeText(ip).then(function () {
             copyIp.classList.add('copied');
-            var original = copyIp.querySelector('span').textContent;
-            copyIp.querySelector('span').textContent = 'Copied!';
+            var span = copyIp.querySelector('span');
+            var original = span.textContent;
+            span.textContent = 'Copied!';
             if (window.RelisysTheme) window.RelisysTheme.playSound('click');
             setTimeout(function () {
               copyIp.classList.remove('copied');
-              copyIp.querySelector('span').textContent = original;
+              span.textContent = ip;
             }, 1800);
           });
         }
       });
     }
 
-    // Mobile Hamburger Toggle
     initMobileHamburger();
   }
 
   function initMobileHamburger() {
     if (document.getElementById('relisys-mobile-toggle')) return;
     var btn = document.createElement('button');
+    btn.type = 'button';
     btn.id = 'relisys-mobile-toggle';
-    btn.className = 'relisys-mobile-toggle-btn';
+    btn.className = 'relisys-mobile-toggle-btn relisys-btn-processed';
     btn.setAttribute('aria-label', 'Toggle Menu');
     btn.innerHTML =
       '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
@@ -334,62 +401,88 @@
     document.body.appendChild(overlay);
   }
 
-  // Update active links on SPA navigation
+  function syncLiveServerBadge(server) {
+    if (!server) return;
+    var nameNode = document.getElementById('relisys-sb-live-name');
+    if (nameNode && server.name && nameNode.textContent !== server.name) {
+      nameNode.textContent = server.name;
+      nameNode.setAttribute('title', server.name);
+    }
+    var ipBox = document.getElementById('relisys-sb-copy-ip');
+    var ipText = document.getElementById('relisys-sb-live-ip');
+    if (ipBox && ipText && server.address && !ipBox.classList.contains('copied')) {
+      ipBox.setAttribute('data-ip', server.address);
+      ipBox.style.display = 'flex';
+      if (ipText.textContent !== server.address) {
+        ipText.textContent = server.address;
+      }
+    }
+    var dotNode = document.getElementById('relisys-sb-live-dot');
+    if (dotNode) {
+      dotNode.className = 'relisys-sb-server-status-dot ' + server.status;
+    }
+  }
+
   function updateSidebarState() {
     var root = document.getElementById('relisys-sidebar-root');
     if (!root) {
       createSidebar();
       return;
     }
-    var server = getServerInfoFromDom();
-    var existingContext = root.querySelector('.relisys-sb-server-context');
-    // If URL route context changed from dashboard to server or vice versa, rebuild
-    if ((server && !existingContext) || (!server && existingContext)) {
+
+    var server = extractServerInfo();
+    var currentServerId = server ? server.id : '';
+    var renderedServerId = root.getAttribute('data-server-id') || '';
+
+    // Rebuild if switching between dashboard and server OR switching from Server A to Server B
+    if (currentServerId !== renderedServerId) {
       root.remove();
       createSidebar();
       return;
     }
 
-    // Otherwise, update active class
+    if (server) {
+      syncLiveServerBadge(server);
+    }
+
+    // Update active state on all navigation items
     root.querySelectorAll('.relisys-sb-nav-item').forEach(function (item) {
       var link = item.querySelector('a');
       if (!link) return;
       var href = link.getAttribute('href');
-      if (isRouteActive(href)) {
-        item.classList.add('active');
-      } else {
-        item.classList.remove('active');
-      }
+      item.classList.toggle('active', isNavLinkActive(href, currentServerId));
     });
   }
 
-  // Intercept HTML5 history pushState & replaceState for instant zero-delay updates
+  // Listen for theme changes (e.g., Discord link updated)
+  window.addEventListener('relisys:theme-changed', function (e) {
+    var discordLink = document.getElementById('relisys-sb-discord-link');
+    if (discordLink && e.detail && e.detail.discordUrl) {
+      discordLink.setAttribute('href', e.detail.discordUrl);
+    }
+  });
+
+  // Intercept HTML5 history pushState & replaceState for instant updates
   var origPush = history.pushState;
   history.pushState = function () {
     var ret = origPush.apply(this, arguments);
-    setTimeout(updateSidebarState, 50);
+    setTimeout(updateSidebarState, 30);
     return ret;
   };
 
   var origReplace = history.replaceState;
   history.replaceState = function () {
     var ret = origReplace.apply(this, arguments);
-    setTimeout(updateSidebarState, 50);
+    setTimeout(updateSidebarState, 30);
     return ret;
   };
 
   window.addEventListener('popstate', function () {
-    setTimeout(updateSidebarState, 50);
+    setTimeout(updateSidebarState, 30);
   });
 
-  // Fallback monitor
-  var lastUrl = window.location.href;
-  setInterval(function () {
-    if (window.location.href !== lastUrl) {
-      lastUrl = window.location.href;
-      updateSidebarState();
-    }
-  }, 300);
+  // Periodic sync for server title / IP once React finishes fetching server details
+  setInterval(updateSidebarState, 800);
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', createSidebar);

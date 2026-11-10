@@ -1,8 +1,8 @@
 /**
  * Relisys Dynamic Chart.js Restyling Engine
- * Connects directly with Relisys Theme variables and live updates on accent change
+ * Zero-lag live chart restyling with automatic garbage collection of unmounted canvases
  * Author: Mohamed Khire
- * Version: 2.0.0
+ * Version: 2.1.0
  */
 (function () {
   'use strict';
@@ -12,6 +12,8 @@
     var accent = root.getPropertyValue('--relisys-accent').trim() || '#6366f1';
     var rgb = root.getPropertyValue('--relisys-accent-rgb').trim() || '99, 102, 241';
     return {
+      accent: accent,
+      rgb: rgb,
       colors: [accent, '#38bdf8', '#a855f7', '#10b981'],
       fills: [
         ['rgba(' + rgb + ', 0.35)', 'rgba(' + rgb + ', 0.0)'],
@@ -47,9 +49,14 @@
     return g;
   }
 
-  function restyle(chart) {
-    if (!chart || !chart.options) return;
+  function restyle(chart, forceUpdate) {
+    if (!chart || !chart.options) return false;
     var theme = getThemeColors();
+    var signature = theme.accent + '|' + (chart.height || 0);
+    if (!forceUpdate && chart._relisysStyledSig === signature) {
+      return false;
+    }
+    chart._relisysStyledSig = signature;
 
     chart.options.animation = false;
     chart.options.responsive = true;
@@ -90,7 +97,7 @@
           color: '#64748b',
           fontColor: '#64748b',
           padding: 8,
-          font: { size: 11, family: 'Inter, system-ui, sans-serif' }
+          font: { size: 11, family: '"Plus Jakarta Sans", system-ui, sans-serif' }
         });
       });
     });
@@ -127,13 +134,18 @@
     if (activeCharts.indexOf(chart) === -1) {
       activeCharts.push(chart);
     }
+    return true;
   }
 
   function fiber(el) {
-    var key = Object.keys(el).find(function (k) {
-      return k.indexOf('__reactFiber$') === 0 || k.indexOf('__reactInternalInstance$') === 0;
-    });
-    return key ? el[key] : null;
+    var keys = Object.keys(el);
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      if (k.indexOf('__reactFiber$') === 0 || k.indexOf('__reactInternalInstance$') === 0) {
+        return el[k];
+      }
+    }
+    return null;
   }
 
   function fromCanvas(canvas) {
@@ -158,33 +170,36 @@
     return null;
   }
 
-  function scan() {
+  function pruneDisconnectedCharts() {
+    activeCharts = activeCharts.filter(function (chart) {
+      var canvas = chart && (chart.canvas || (chart.ctx && chart.ctx.canvas));
+      return canvas && canvas.isConnected;
+    });
+  }
+
+  function scan(forceUpdate) {
+    pruneDisconnectedCharts();
     document.querySelectorAll('canvas').forEach(function (canvas) {
       var chart = fromCanvas(canvas);
       if (!chart) return;
       try {
-        restyle(chart);
-        if (typeof chart.update === 'function') chart.update('none');
+        var changed = restyle(chart, forceUpdate);
+        if (changed && typeof chart.update === 'function') {
+          chart.update('none');
+        }
       } catch (e) {}
     });
   }
 
-  // Live theme change listener
   window.addEventListener('relisys:theme-changed', function () {
-    activeCharts.forEach(function (chart) {
-      try {
-        restyle(chart);
-        if (typeof chart.update === 'function') chart.update('none');
-      } catch (e) {}
-    });
-    scan();
+    scan(true);
   });
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', scan);
+    document.addEventListener('DOMContentLoaded', function () { scan(false); });
   } else {
-    scan();
+    scan(false);
   }
 
-  setInterval(scan, 3000);
+  setInterval(function () { scan(false); }, 2500);
 })();

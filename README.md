@@ -1,4 +1,4 @@
-# Relisys Dark Glassify Theme (v2.0.0)
+# Relisys Dark Glassify Theme (v2.1.0)
 
 Next-generation Obsidian & Dark Glassmorphism Theme for **Pterodactyl Panel** and **Blueprint Framework**.
 

@@ -1,4 +1,4 @@
-﻿Add-Type -AssemblyName System.IO.Compression
+Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 $zipPath = Join-Path (Get-Location) "relisys.blueprint"
@@ -22,7 +22,8 @@ $files = @(
     "public/theme-engine.js",
     "public/sidebar.js",
     "public/ui.js",
-    "public/charts.js"
+    "public/charts.js",
+    "public/admin.js"
 )
 
 foreach ($f in $files) {

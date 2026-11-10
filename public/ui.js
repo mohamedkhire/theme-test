@@ -1,6 +1,6 @@
 /**
- * Relisys UI Enhancement & Fix Engine
- * Resolves Pterodactyl DOM styling, button consistency, terminal chrome, and login page
+ * Relisys UI Enhancement & Real-Time Status Engine
+ * Zero-lag server card telemetry, instant status dots, non-destructive terminal toolbar, and semantic UI
  * Author: Mohamed Khire
  * Version: 2.1.0
  */
@@ -8,147 +8,343 @@
   'use strict';
 
   function textOf(el) {
-    return (el.textContent || '').replace(/\s+/g, ' ').trim();
+    return (el && el.textContent || '').replace(/\s+/g, ' ').trim();
   }
 
-  // 1. Terminal Window Chrome & Toolbar
+  // Extract React Fiber node to read live server state directly without slow getComputedStyle polling
+  function getReactFiber(el) {
+    if (!el) return null;
+    var keys = Object.keys(el);
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      if (k.indexOf('__reactFiber$') === 0 || k.indexOf('__reactInternalInstance$') === 0) {
+        return el[k];
+      }
+    }
+    return null;
+  }
+
+  // Fast status resolution for a ServerRow element
+  function detectServerStatus(row) {
+    // 1. Check React Fiber props/memoizedProps for $status or status
+    var fiber = getReactFiber(row);
+    var depth = 0;
+    while (fiber && depth < 18) {
+      var props = fiber.memoizedProps || fiber.pendingProps;
+      if (props) {
+        var rawStatus = props.$status || props.status || (props.server && props.server.status);
+        if (typeof rawStatus === 'string') {
+          var s = rawStatus.toLowerCase();
+          if (s === 'running' || s === 'online') return 'online';
+          if (s === 'starting' || s === 'stopping' || s === 'installing') return 'starting';
+          if (s === 'offline' || s === 'suspended') return 'offline';
+        }
+      }
+      fiber = fiber.return;
+      depth++;
+    }
+
+    // 2. Check status-bar element attributes, classes, or inline style
+    var bar = row.querySelector('.status-bar');
+    if (bar) {
+      var barFiber = getReactFiber(bar);
+      if (barFiber && barFiber.memoizedProps && barFiber.memoizedProps.$status) {
+        var bs = String(barFiber.memoizedProps.$status).toLowerCase();
+        if (bs === 'running' || bs === 'online') return 'online';
+        if (bs === 'starting' || bs === 'stopping') return 'starting';
+        return 'offline';
+      }
+
+      // Check text content inside row for "Offline", "Suspended", "Installing"
+      var rowText = (row.textContent || '').toLowerCase();
+      if (rowText.indexOf('offline') !== -1 || rowText.indexOf('suspended') !== -1 || rowText.indexOf('error') !== -1) {
+        return 'offline';
+      }
+      if (rowText.indexOf('starting') !== -1 || rowText.indexOf('installing') !== -1 || rowText.indexOf('restoring') !== -1) {
+        return 'starting';
+      }
+
+      // Check computed background color of .status-bar only if needed
+      var bg = window.getComputedStyle(bar).backgroundColor || '';
+      var rgbMatch = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      if (rgbMatch) {
+        var r = parseInt(rgbMatch[1], 10);
+        var g = parseInt(rgbMatch[2], 10);
+        var b = parseInt(rgbMatch[3], 10);
+        // Greenish (running)
+        if (g > 150 && g > r * 1.3) return 'online';
+        // Yellow/Amber (starting/stopping)
+        if (r > 180 && g > 120 && b < 100) return 'starting';
+        // Reddish (offline)
+        if (r > 180 && g < 120) return 'offline';
+      }
+    }
+
+    // 3. Fallback: if CPU / Memory live numbers are visible on the card, server is online
+    var metrics = row.querySelectorAll('p[class*="ServerRow___StyledP3-"], [class*="IconDescription"]');
+    for (var m = 0; m < metrics.length; m++) {
+      var mText = metrics[m].textContent || '';
+      if (/\d+(\.\d+)?\s*%/.test(mText)) {
+        var pct = parseFloat(mText);
+        if (pct > 0) return 'online';
+      }
+    }
+
+    return 'offline';
+  }
+
+  // 1. Server Row Instant Status Dots & Live Telemetry Polish
+  function enhanceServerRows() {
+    var rows = document.querySelectorAll(
+      'a[class*="ServerRow__StatusIndicatorBox"], div[class*="ServerRow__StatusIndicatorBox"], a.GreyRowBox-sc-1xo9c6v-0[href^="/server/"]'
+    );
+
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      if (!row.classList.contains('relisys-row-enhanced')) {
+        row.classList.add('relisys-row-enhanced');
+      }
+
+      var status = detectServerStatus(row);
+      if (row.getAttribute('data-relisys-status') !== status) {
+        row.setAttribute('data-relisys-status', status);
+      }
+
+      var nameEl = row.querySelector('p[class*="ServerRow___StyledP-"]') || row.querySelector('p');
+      if (nameEl) {
+        var dot = nameEl.querySelector('.relisys-server-dot');
+        if (!dot) {
+          // Remove any stray dots outside nameEl
+          var stray = row.querySelectorAll('.relisys-server-dot');
+          for (var s = 0; s < stray.length; s++) stray[s].remove();
+
+          dot = document.createElement('span');
+          dot.className = 'relisys-server-dot ' + status;
+          nameEl.prepend(dot);
+        } else if (!dot.classList.contains(status)) {
+          dot.className = 'relisys-server-dot ' + status;
+        }
+      }
+    }
+  }
+
+  // Find Xterm instance via React Fiber for clean, non-destructive terminal clear & full log copy
+  function findXtermInstance(termEl) {
+    if (!termEl) return null;
+    if (termEl._xterm) return termEl._xterm;
+    var node = getReactFiber(termEl) || getReactFiber(termEl.parentElement);
+    var depth = 0;
+    while (node && depth < 35) {
+      var state = node.stateNode;
+      if (state) {
+        if (typeof state.clear === 'function' && state.buffer) return state;
+        if (state.terminal && typeof state.terminal.clear === 'function') return state.terminal;
+        if (state.term && typeof state.term.clear === 'function') return state.term;
+      }
+      var memo = node.memoizedState;
+      while (memo) {
+        if (memo.memoizedState && typeof memo.memoizedState === 'object') {
+          var current = memo.memoizedState.current;
+          if (current && typeof current.clear === 'function' && current.buffer) {
+            return current;
+          }
+        }
+        memo = memo.next;
+      }
+      node = node.return;
+      depth++;
+    }
+    return null;
+  }
+
+  // 2. Terminal Window Chrome & Non-Destructive Toolbar
   function enhanceConsole() {
-    // Only target the main terminal container, avoid duplicate bars
     var terms = document.querySelectorAll('.xterm');
-    terms.forEach(function (term) {
-      // Find the direct console container (.style-module_1AMtO9lt or .style-module_1n_DiqmT)
+    for (var i = 0; i < terms.length; i++) {
+      var term = terms[i];
       var wrap = term.closest('.style-module_1AMtO9lt') || term.closest('.style-module_1n_DiqmT') || term.parentElement;
-      if (!wrap) return;
+      if (!wrap) continue;
 
       wrap.classList.add('relisys-term');
 
-      // Check if toolbar already exists
-      if (wrap.querySelector('.relisys-terminal-toolbar')) return;
+      if (!wrap.querySelector('.relisys-terminal-toolbar')) {
+        var toolbar = document.createElement('div');
+        toolbar.className = 'relisys-terminal-toolbar';
+        toolbar.innerHTML =
+          '<div class="relisys-term-dots">' +
+          '  <span class="relisys-dot red"></span>' +
+          '  <span class="relisys-dot yellow"></span>' +
+          '  <span class="relisys-dot green"></span>' +
+          '</div>' +
+          '<div class="relisys-term-title">' +
+          '  <span class="relisys-term-pulse"></span>' +
+          '  <span>container@relisys-core:~$</span>' +
+          '</div>' +
+          '<div class="relisys-term-actions">' +
+          '  <button type="button" class="relisys-term-btn relisys-btn-processed" data-action="copy" title="Copy Console Logs">' +
+          '    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
+          '    <span>Copy</span>' +
+          '  </button>' +
+          '  <button type="button" class="relisys-term-btn relisys-btn-processed" data-action="clear" title="Clear Console">' +
+          '    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
+          '    <span>Clear</span>' +
+          '  </button>' +
+          '</div>';
 
-      var toolbar = document.createElement('div');
-      toolbar.className = 'relisys-terminal-toolbar';
-      toolbar.innerHTML =
-        '<div class="relisys-term-dots">' +
-        '  <span class="relisys-dot red"></span>' +
-        '  <span class="relisys-dot yellow"></span>' +
-        '  <span class="relisys-dot green"></span>' +
-        '</div>' +
-        '<div class="relisys-term-title">' +
-        '  <span class="relisys-term-pulse"></span>' +
-        '  <span>server@relisys-core:~$</span>' +
-        '</div>' +
-        '<div class="relisys-term-actions">' +
-        '  <button type="button" class="relisys-term-btn" id="relisys-copy-logs" title="Copy Console Logs">' +
-        '    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
-        '    <span>Copy</span>' +
-        '  </button>' +
-        '  <button type="button" class="relisys-term-btn" id="relisys-clear-logs" title="Clear Console">' +
-        '    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
-        '    <span>Clear</span>' +
-        '  </button>' +
-        '</div>';
+        wrap.prepend(toolbar);
 
-      wrap.prepend(toolbar);
-
-      // Event: Clear logs
-      var clearBtn = toolbar.querySelector('#relisys-clear-logs');
-      if (clearBtn) {
-        clearBtn.addEventListener('click', function () {
-          var screen = wrap.querySelector('.xterm-rows');
-          if (screen) {
-            screen.innerHTML = '<div style="color: #64748b; padding: 8px 0; font-family: monospace;">[Console output cleared by user]</div>';
-            if (window.RelisysTheme) window.RelisysTheme.playSound('click');
-          }
-        });
-      }
-
-      // Event: Copy logs
-      var copyBtn = toolbar.querySelector('#relisys-copy-logs');
-      if (copyBtn) {
-        copyBtn.addEventListener('click', function () {
-          var screen = wrap.querySelector('.xterm-rows') || wrap;
-          var text = screen.innerText || screen.textContent || '';
-          if (text && navigator.clipboard) {
-            navigator.clipboard.writeText(text).then(function () {
-              var span = copyBtn.querySelector('span');
-              span.textContent = 'Copied!';
+        var clearBtn = toolbar.querySelector('[data-action="clear"]');
+        if (clearBtn) {
+          clearBtn.addEventListener('click', (function (currentTerm, currentWrap) {
+            return function () {
+              var xterm = findXtermInstance(currentTerm);
+              if (xterm && typeof xterm.clear === 'function') {
+                xterm.clear();
+              } else {
+                // Safe non-destructive fallback: clear text of individual row children without destroying xterm-rows pool
+                var rowsContainer = currentWrap.querySelector('.xterm-rows');
+                if (rowsContainer && rowsContainer.children) {
+                  for (var r = 0; r < rowsContainer.children.length; r++) {
+                    rowsContainer.children[r].textContent = '';
+                  }
+                }
+              }
               if (window.RelisysTheme) window.RelisysTheme.playSound('click');
-              setTimeout(function () { span.textContent = 'Copy'; }, 1800);
-            });
-          }
-        });
-      }
-    });
+            };
+          })(term, wrap));
+        }
 
-    // Clean up input bar
-    var inputBoxes = document.querySelectorAll('input.style-module_3TDo--Tn, input[placeholder*="command"]');
-    inputBoxes.forEach(function (inp) {
-      inp.classList.add('relisys-cmd-input');
-      var p = inp.parentElement;
-      if (p) {
-        p.classList.remove('relisys-term');
-        p.classList.add('relisys-cmd-bar');
+        var copyBtn = toolbar.querySelector('[data-action="copy"]');
+        if (copyBtn) {
+          copyBtn.addEventListener('click', (function (currentTerm, currentWrap, btnEl) {
+            return function () {
+              var text = '';
+              var xterm = findXtermInstance(currentTerm);
+              if (xterm && xterm.buffer && xterm.buffer.active) {
+                var buf = xterm.buffer.active;
+                var lines = [];
+                for (var idx = 0; idx < buf.length; idx++) {
+                  var lineObj = buf.getLine(idx);
+                  if (lineObj) {
+                    var lineStr = lineObj.translateToString(true);
+                    if (lineStr) lines.push(lineStr);
+                  }
+                }
+                text = lines.join('\n').trim();
+              }
+              if (!text) {
+                var screen = currentWrap.querySelector('.xterm-rows') || currentWrap;
+                text = (screen.innerText || screen.textContent || '').trim();
+              }
+              if (text && navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(function () {
+                  var span = btnEl.querySelector('span');
+                  if (span) span.textContent = 'Copied!';
+                  if (window.RelisysTheme) window.RelisysTheme.playSound('click');
+                  setTimeout(function () {
+                    if (span) span.textContent = 'Copy';
+                  }, 1800);
+                });
+              }
+            };
+          })(term, wrap, copyBtn));
+        }
       }
-    });
+    }
+
+    // Clean up command input bar
+    var inputBoxes = document.querySelectorAll('input.style-module_3TDo--Tn, input[placeholder*="command"]');
+    for (var j = 0; j < inputBoxes.length; j++) {
+      var inp = inputBoxes[j];
+      if (!inp.classList.contains('relisys-cmd-input')) {
+        inp.classList.add('relisys-cmd-input');
+        var p = inp.parentElement;
+        if (p) {
+          p.classList.remove('relisys-term');
+          p.classList.add('relisys-cmd-bar');
+        }
+      }
+    }
   }
 
-  // 2. Semantic Button Normalization
+  // 3. Semantic Button Normalization
   function enhanceButtons() {
-    var buttons = document.querySelectorAll('button, a.btn, .btn');
-    buttons.forEach(function (btn) {
-      if (btn.classList.contains('relisys-btn-processed')) return;
+    var buttons = document.querySelectorAll('button:not(.relisys-btn-processed), a.btn:not(.relisys-btn-processed), .btn:not(.relisys-btn-processed)');
+    for (var i = 0; i < buttons.length; i++) {
+      var btn = buttons[i];
       btn.classList.add('relisys-btn-processed');
+
+      // Skip sidebar or studio buttons
+      if (btn.closest('#relisys-sidebar-root') || btn.closest('#relisys-theme-studio') || btn.closest('#relisys-cmd-palette')) {
+        continue;
+      }
 
       var label = textOf(btn).toLowerCase();
 
       // Power Buttons
-      if (label === 'start') {
+      if (label === 'start' || label === 'start server') {
         btn.setAttribute('data-relisys-btn', 'success');
         btn.setAttribute('data-relisys-power', 'start');
         btn.addEventListener('click', function () {
           if (window.RelisysTheme) window.RelisysTheme.playSound('start');
         });
-      } else if (label === 'restart') {
+      } else if (label === 'restart' || label === 'restart server') {
         btn.setAttribute('data-relisys-btn', 'warning');
         btn.setAttribute('data-relisys-power', 'restart');
         btn.addEventListener('click', function () {
           if (window.RelisysTheme) window.RelisysTheme.playSound('start');
         });
-      } else if (label === 'stop') {
+      } else if (label === 'stop' || label === 'stop server') {
         btn.setAttribute('data-relisys-btn', 'danger');
         btn.setAttribute('data-relisys-power', 'stop');
         btn.addEventListener('click', function () {
           if (window.RelisysTheme) window.RelisysTheme.playSound('stop');
         });
-      } else if (label === 'kill') {
+      } else if (label === 'kill' || label === 'kill server' || label === 'force stop') {
         btn.setAttribute('data-relisys-btn', 'danger');
         btn.setAttribute('data-relisys-power', 'kill');
         btn.addEventListener('click', function () {
           if (window.RelisysTheme) window.RelisysTheme.playSound('stop');
         });
       }
-      // Action Buttons
-      else if (label === 'login' || label.indexOf('save') !== -1 || label.indexOf('create') !== -1 || label.indexOf('new ') !== -1 || label.indexOf('upload') !== -1) {
+      // Action Buttons (strict matching to avoid false positives like "Backups")
+      else if (
+        label === 'login' ||
+        label === 'save' ||
+        label === 'save changes' ||
+        label.indexOf('create ') === 0 ||
+        label.indexOf('new ') === 0 ||
+        label === 'upload'
+      ) {
         btn.setAttribute('data-relisys-btn', 'primary');
-      } else if (label.indexOf('delete') !== -1 || label.indexOf('remove') !== -1 || label.indexOf('reinstall') !== -1) {
+      } else if (
+        label === 'delete' ||
+        label === 'remove' ||
+        label === 'reinstall' ||
+        label === 'reinstall server' ||
+        label === 'wipe'
+      ) {
         btn.setAttribute('data-relisys-btn', 'danger');
-      } else if (label.indexOf('cancel') !== -1 || label.indexOf('close') !== -1 || label.indexOf('back') !== -1) {
+      } else if (label === 'cancel' || label === 'close') {
         btn.setAttribute('data-relisys-btn', 'ghost');
       }
-    });
+    }
   }
 
-  // 3. Login Page Beautification & Brand Panel
+  // 4. Login Page Beautification & Brand Panel
   function enhanceLoginPage() {
-    var isLogin = window.location.pathname.indexOf('/auth/') !== -1 || document.querySelector('form[action*="login"]');
-    if (!isLogin) return;
+    var isLogin = window.location.pathname.indexOf('/auth/') !== -1 || !!document.querySelector('form[action*="login"]');
+    if (!isLogin) {
+      document.body.classList.remove('relisys-auth-page');
+      return;
+    }
 
     document.body.classList.add('relisys-auth-page');
 
-    // Replace Pterodactyl dinosaur logo in the left column
     var oldLogos = document.querySelectorAll('img[src*="pterodactyl"], svg[class*="pterodactyl"]');
-    oldLogos.forEach(function (el) {
-      if (el.getAttribute('data-relisys-replaced')) return;
+    for (var i = 0; i < oldLogos.length; i++) {
+      var el = oldLogos[i];
+      if (el.getAttribute('data-relisys-replaced')) continue;
       el.setAttribute('data-relisys-replaced', 'true');
       el.style.display = 'none';
 
@@ -167,15 +363,8 @@
         '</div>';
 
       if (el.parentNode) el.parentNode.insertBefore(brandHeader, el);
-    });
-
-    // Make sure login button is styled as primary white pill
-    var loginBtn = document.querySelector('form button[type="submit"]');
-    if (loginBtn) {
-      loginBtn.setAttribute('data-relisys-btn', 'primary');
     }
 
-    // Reposition reCAPTCHA badge away from form and button
     var recaptchaBadge = document.querySelector('.grecaptcha-badge');
     if (recaptchaBadge) {
       recaptchaBadge.style.setProperty('left', '16px', 'important');
@@ -185,49 +374,17 @@
     }
   }
 
-  // 4. Server Row Enhancements
-  function enhanceServerRows() {
-    var rows = document.querySelectorAll('a[class*="ServerRow__StatusIndicatorBox"], div[class*="ServerRow__StatusIndicatorBox"]');
-    rows.forEach(function (row) {
-      if (row.classList.contains('relisys-row-enhanced')) return;
-      row.classList.add('relisys-row-enhanced');
-
-      // Remove any duplicate dots
-      var existingDots = row.querySelectorAll('.relisys-server-dot');
-      existingDots.forEach(function (d) { d.remove(); });
-
-      // Detect status from status bar
-      var bar = row.querySelector('.status-bar');
-      var status = 'offline';
-      if (bar) {
-        var bg = window.getComputedStyle(bar).backgroundColor;
-        if (bg.indexOf('16, 185, 129') !== -1 || bg.indexOf('52, 199, 123') !== -1) {
-          status = 'online';
-        } else if (bg.indexOf('245, 158, 11') !== -1 || bg.indexOf('245, 185, 66') !== -1) {
-          status = 'starting';
-        }
-      }
-
-      var dot = document.createElement('span');
-      dot.className = 'relisys-server-dot ' + status;
-
-      var nameEl = row.querySelector('p[class*="ServerRow___StyledP-"]');
-      if (nameEl) {
-        nameEl.prepend(dot);
-      }
-    });
-  }
-
   // 5. File Manager Folder Icons
   function enhanceFileManager() {
-    var fileRows = document.querySelectorAll('div.style-module_1WqkLT9X');
-    fileRows.forEach(function (row) {
-      var iconWrap = row.querySelector('div.FileObjectRow___StyledDiv-sc-wrdnyp-0');
-      if (iconWrap && !iconWrap.classList.contains('relisys-file-icon-styled')) {
-        iconWrap.classList.add('relisys-file-icon-styled');
-        var svg = iconWrap.querySelector('svg');
+    var fileRows = document.querySelectorAll('div.style-module_1WqkLT9X, div[class*="FileObjectRow"]');
+    for (var i = 0; i < fileRows.length; i++) {
+      var row = fileRows[i];
+      var iconWrap = row.querySelector('div[class*="FileObjectRow___StyledDiv"]') || row.querySelector('svg');
+      if (iconWrap && !row.classList.contains('relisys-file-row-styled')) {
+        row.classList.add('relisys-file-row-styled');
+        var svg = row.querySelector('svg');
         if (svg) {
-          var isFolder = svg.getAttribute('data-icon') === 'folder' || iconWrap.innerHTML.indexOf('M464') !== -1 || !row.querySelector('div.FileObjectRow___StyledDiv3-sc-wrdnyp-2');
+          var isFolder = svg.getAttribute('data-icon') === 'folder' || (svg.innerHTML && svg.innerHTML.indexOf('M464') !== -1);
           if (isFolder) {
             svg.classList.add('relisys-folder-svg');
           } else {
@@ -235,16 +392,23 @@
           }
         }
       }
-    });
+    }
   }
 
-  // Master Enhancement Runner
+  // Zero-lag requestAnimationFrame scheduler
+  var rafId = null;
   function runAll() {
+    rafId = null;
+    enhanceServerRows();
     enhanceConsole();
     enhanceButtons();
     enhanceLoginPage();
-    enhanceServerRows();
     enhanceFileManager();
+  }
+
+  function scheduleRun() {
+    if (rafId !== null) return;
+    rafId = window.requestAnimationFrame(runAll);
   }
 
   if (document.readyState === 'loading') {
@@ -253,14 +417,31 @@
     runAll();
   }
 
-  // Observe dynamic React SPA modifications
-  var debounceTimer = null;
+  // Observe React DOM updates and attribute/style changes on status bars for instant dot updates
   if (typeof MutationObserver !== 'undefined') {
-    new MutationObserver(function () {
-      if (debounceTimer) clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(runAll, 200);
-    }).observe(document.documentElement, { childList: true, subtree: true });
+    new MutationObserver(function (mutations) {
+      for (var i = 0; i < mutations.length; i++) {
+        var target = mutations[i].target;
+        if (target && target.nodeType === 1) {
+          // Ignore mutations inside our own static UI overlays to prevent unnecessary work
+          if (
+            target.id === 'relisys-ambient-glow' ||
+            target.closest && (target.closest('#relisys-theme-studio') || target.closest('#relisys-cmd-palette'))
+          ) {
+            continue;
+          }
+          scheduleRun();
+          break;
+        }
+      }
+    }).observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class', 'style']
+    });
   }
 
-  setInterval(runAll, 3000);
+  // Lightweight fallback check
+  setInterval(enhanceServerRows, 1000);
 })();

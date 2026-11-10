@@ -20,7 +20,8 @@
   /* Deep Glass Surfaces */
   --relisys-bg: #08090e;
   --relisys-bg-secondary: #0d0f17;
-  --relisys-surface: rgba(15, 18, 28, 0.68);
+  --relisys-surface: rgba(15, 18, 28, var(--relisys-glass-opacity, 0.68));
+  --relisys-surface-glass: rgba(15, 18, 28, var(--relisys-glass-opacity, 0.68));
   --relisys-surface-elevated: rgba(23, 27, 42, 0.85);
   --relisys-surface-hover: rgba(30, 36, 56, 0.75);
   --relisys-glass-border: rgba(255, 255, 255, 0.08);
@@ -744,10 +745,10 @@ div.LoginFormContainer___StyledDiv3-sc-cyh04c-6 label {
   text-transform: uppercase !important;
 }
 
-/* White Pill Login Button */
-button[type="submit"],
-button.ZTniA,
-div.LoginContainer___StyledDiv2-sc-qtrnpk-2 button {
+/* White Pill Login Button (Scoped to auth page only) */
+body.relisys-auth-page button[type="submit"],
+body.relisys-auth-page button.ZTniA,
+body.relisys-auth-page div.LoginContainer___StyledDiv2-sc-qtrnpk-2 button {
   background: #ffffff !important;
   color: #0b0d14 !important;
   font-weight: 700 !important;
@@ -763,9 +764,9 @@ div.LoginContainer___StyledDiv2-sc-qtrnpk-2 button {
   transition: all 180ms ease !important;
 }
 
-button[type="submit"]:hover,
-button.ZTniA:hover,
-div.LoginContainer___StyledDiv2-sc-qtrnpk-2 button:hover {
+body.relisys-auth-page button[type="submit"]:hover,
+body.relisys-auth-page button.ZTniA:hover,
+body.relisys-auth-page div.LoginContainer___StyledDiv2-sc-qtrnpk-2 button:hover {
   background: #f1f5f9 !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 6px 24px rgba(255, 255, 255, 0.35) !important;
@@ -797,9 +798,11 @@ div[class*="ServerRow__StatusIndicatorBox"] {
   box-shadow: var(--relisys-shadow) !important;
   padding: 1.15rem 1.4rem !important;
   margin-bottom: 0.75rem !important;
-  transition: all 220ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease !important;
   position: relative !important;
   overflow: hidden !important;
+  contain: layout style;
+  will-change: transform;
 }
 
 a.ServerRow__StatusIndicatorBox-sc-1ibsw91-2:hover,
@@ -825,11 +828,11 @@ div[class*="ServerRow"] div:not(.icon):not(.status-bar) {
 /* Left Server Icon badge */
 div[class*="ServerRow___StyledDiv"] .icon,
 div[class*="ServerRow"] .icon {
-  background: rgba(99, 102, 241, 0.12) !important;
-  border: 1px solid rgba(99, 102, 241, 0.25) !important;
+  background: rgba(var(--relisys-accent-rgb), 0.12) !important;
+  border: 1px solid rgba(var(--relisys-accent-rgb), 0.25) !important;
   border-radius: 12px !important;
   padding: 10px !important;
-  color: #a5b4fc !important;
+  color: var(--relisys-accent) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -837,10 +840,10 @@ div[class*="ServerRow"] .icon {
 }
 
 a[class*="ServerRow"]:hover .icon {
-  background: rgba(99, 102, 241, 0.22) !important;
-  border-color: rgba(99, 102, 241, 0.5) !important;
+  background: rgba(var(--relisys-accent-rgb), 0.22) !important;
+  border-color: rgba(var(--relisys-accent-rgb), 0.5) !important;
   color: #ffffff !important;
-  box-shadow: 0 0 16px rgba(99, 102, 241, 0.35) !important;
+  box-shadow: 0 0 16px rgba(var(--relisys-accent-rgb), 0.35) !important;
   transform: scale(1.05) !important;
 }
 
@@ -929,8 +932,8 @@ div[class*="StatBlock"] {
 div.style-module_2Vp6MaXq:hover,
 div.style-module_2XbmHEcn:hover {
   background: rgba(22, 27, 42, 0.88) !important;
-  border-color: rgba(99, 102, 241, 0.45) !important;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.2) !important;
+  border-color: rgba(var(--relisys-accent-rgb), 0.45) !important;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(var(--relisys-accent-rgb), 0.2) !important;
   transform: translateY(-2px) !important;
 }
 
@@ -951,9 +954,9 @@ div.style-module_1DtraXMW {
 }
 
 div.style-module_2Vp6MaXq:hover div.style-module_1DtraXMW {
-  background: rgba(99, 102, 241, 0.15) !important;
-  border-color: rgba(99, 102, 241, 0.35) !important;
-  box-shadow: 0 0 12px rgba(99, 102, 241, 0.25) !important;
+  background: rgba(var(--relisys-accent-rgb), 0.15) !important;
+  border-color: rgba(var(--relisys-accent-rgb), 0.35) !important;
+  box-shadow: 0 0 12px rgba(var(--relisys-accent-rgb), 0.25) !important;
 }
 
 /* Clean Canvas Chart */
@@ -988,10 +991,10 @@ div[class*="style-module_3Y7xosru"] button:hover,
 div[class*="style-module_3Y7xosru"] a:hover,
 button.style-module_4LBM1DKx:hover,
 button[class*="style-module_4LBM1DKx"]:hover {
-  background: rgba(99, 102, 241, 0.2) !important;
-  border-color: rgba(99, 102, 241, 0.5) !important;
+  background: rgba(var(--relisys-accent-rgb), 0.2) !important;
+  border-color: rgba(var(--relisys-accent-rgb), 0.5) !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3) !important;
+  box-shadow: 0 4px 16px rgba(var(--relisys-accent-rgb), 0.3) !important;
   transform: translateY(-1px) !important;
 }
 
@@ -1258,9 +1261,9 @@ div[class*="SubNavigation"] a:hover {
 
 div[class*="SubNavigation"] a.active {
   color: #ffffff !important;
-  background: rgba(99, 102, 241, 0.18) !important;
-  border-color: rgba(99, 102, 241, 0.4) !important;
-  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.2) !important;
+  background: rgba(var(--relisys-accent-rgb), 0.18) !important;
+  border-color: rgba(var(--relisys-accent-rgb), 0.4) !important;
+  box-shadow: 0 2px 10px rgba(var(--relisys-accent-rgb), 0.2) !important;
   font-weight: 600 !important;
 }
 
@@ -1766,4 +1769,187 @@ div[class*="SubNavigation"] a.active {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.25);
+}
+
+/* ==========================================================================
+   11. Unified Semantic Buttons & Modals
+   ========================================================================== */
+
+/* Primary Button */
+button[data-relisys-btn="primary"],
+.btn-primary:not(.relisys-admin-color-btn) {
+  background: rgba(var(--relisys-accent-rgb), 0.22) !important;
+  border: 1px solid rgba(var(--relisys-accent-rgb), 0.5) !important;
+  color: #ffffff !important;
+  border-radius: var(--relisys-radius-sm) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 10px rgba(var(--relisys-accent-rgb), 0.2) !important;
+  backdrop-filter: blur(8px) !important;
+  transition: all 180ms ease !important;
+  cursor: pointer !important;
+}
+
+button[data-relisys-btn="primary"]:hover,
+.btn-primary:not(.relisys-admin-color-btn):hover {
+  background: rgba(var(--relisys-accent-rgb), 0.38) !important;
+  border-color: rgba(var(--relisys-accent-rgb), 0.75) !important;
+  box-shadow: 0 4px 18px rgba(var(--relisys-accent-rgb), 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Danger Button */
+button[data-relisys-btn="danger"],
+.btn-danger {
+  background: rgba(244, 63, 94, 0.18) !important;
+  border: 1px solid rgba(244, 63, 94, 0.45) !important;
+  color: #fecdd3 !important;
+  border-radius: var(--relisys-radius-sm) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 10px rgba(244, 63, 94, 0.2) !important;
+  backdrop-filter: blur(8px) !important;
+  transition: all 180ms ease !important;
+  cursor: pointer !important;
+}
+
+button[data-relisys-btn="danger"]:hover,
+.btn-danger:hover {
+  background: rgba(244, 63, 94, 0.35) !important;
+  border-color: rgba(244, 63, 94, 0.75) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 18px rgba(244, 63, 94, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Success Button */
+button[data-relisys-btn="success"],
+.btn-success {
+  background: rgba(16, 185, 129, 0.18) !important;
+  border: 1px solid rgba(16, 185, 129, 0.45) !important;
+  color: #a7f3d0 !important;
+  border-radius: var(--relisys-radius-sm) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2) !important;
+  backdrop-filter: blur(8px) !important;
+  transition: all 180ms ease !important;
+  cursor: pointer !important;
+}
+
+button[data-relisys-btn="success"]:hover,
+.btn-success:hover {
+  background: rgba(16, 185, 129, 0.35) !important;
+  border-color: rgba(16, 185, 129, 0.75) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Warning Button */
+button[data-relisys-btn="warning"],
+.btn-warning {
+  background: rgba(245, 158, 11, 0.18) !important;
+  border: 1px solid rgba(245, 158, 11, 0.45) !important;
+  color: #fde68a !important;
+  border-radius: var(--relisys-radius-sm) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.2) !important;
+  backdrop-filter: blur(8px) !important;
+  transition: all 180ms ease !important;
+  cursor: pointer !important;
+}
+
+button[data-relisys-btn="warning"]:hover,
+.btn-warning:hover {
+  background: rgba(245, 158, 11, 0.35) !important;
+  border-color: rgba(245, 158, 11, 0.75) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Ghost Button */
+button[data-relisys-btn="ghost"] {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  color: var(--relisys-text-muted) !important;
+  border-radius: var(--relisys-radius-sm) !important;
+  font-weight: 500 !important;
+  transition: all 180ms ease !important;
+  cursor: pointer !important;
+}
+
+button[data-relisys-btn="ghost"]:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  border-color: var(--relisys-glass-border-strong) !important;
+}
+
+/* Option: Hide duplicate horizontal top subnav when enabled */
+body.relisys-hide-top-subnav div[class*="SubNavigation"] {
+  display: none !important;
+}
+
+/* Pterodactyl Modals & Dialog Portals Glass UI */
+div[class*="Modal__ModalOverlay"],
+div[class*="Dialog__DialogOverlay"],
+div[role="dialog"] > div:first-child {
+  backdrop-filter: blur(16px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(140%) !important;
+  background: rgba(4, 6, 11, 0.75) !important;
+}
+
+div[class*="Modal__ModalContainer"],
+div[class*="Dialog__DialogContainer"],
+div[role="dialog"] div[class*="styled__Container"] {
+  background: rgba(13, 16, 25, 0.94) !important;
+  backdrop-filter: blur(28px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(160%) !important;
+  border: 1px solid var(--relisys-glass-border-strong) !important;
+  border-radius: var(--relisys-radius) !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  color: var(--relisys-text) !important;
+}
+
+/* CodeMirror / File Editor Enhancement */
+.CodeMirror {
+  background: rgba(10, 12, 19, 0.92) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  border-radius: var(--relisys-radius-sm) !important;
+  color: #f8fafc !important;
+  font-family: "JetBrains Mono", monospace !important;
+  font-size: 13px !important;
+}
+
+.CodeMirror-gutters {
+  background: rgba(15, 18, 28, 0.85) !important;
+  border-right: 1px solid var(--relisys-glass-border) !important;
+}
+
+.CodeMirror-linenumber {
+  color: var(--relisys-text-dim) !important;
+}
+
+/* Form inputs & selects inside modals and settings */
+div[role="dialog"] input,
+div[role="dialog"] textarea,
+div[role="dialog"] select,
+div[class*="Modal"] input,
+div[class*="Modal"] textarea,
+div[class*="Modal"] select {
+  background: rgba(18, 22, 35, 0.85) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  border-radius: var(--relisys-radius-sm) !important;
+  color: #ffffff !important;
+  padding: 8px 12px !important;
+  font-size: 13px !important;
+}
+
+div[role="dialog"] input:focus,
+div[role="dialog"] textarea:focus,
+div[role="dialog"] select:focus,
+div[class*="Modal"] input:focus,
+div[class*="Modal"] textarea:focus,
+div[class*="Modal"] select:focus {
+  border-color: var(--relisys-accent) !important;
+  box-shadow: 0 0 0 3px var(--relisys-accent-soft) !important;
+  outline: none !important;
 }

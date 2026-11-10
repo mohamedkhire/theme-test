@@ -195,12 +195,13 @@ body.has-relisys-sidebar.relisys-sidebar-is-collapsed #app {
 
 /* Brand Area */
 .relisys-sb-brand {
-  height: 68px;
+  height: 58px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
   border-bottom: 1px solid var(--relisys-glass-border);
+  flex-shrink: 0;
 }
 
 .relisys-sb-brand-link {
@@ -310,7 +311,8 @@ body.has-relisys-sidebar.relisys-sidebar-is-collapsed #app {
 
 /* Command Palette Trigger */
 .relisys-sb-search-wrap {
-  padding: 12px 14px;
+  padding: 8px 14px;
+  flex-shrink: 0;
 }
 
 .relisys-sb-search-btn {
@@ -321,7 +323,7 @@ body.has-relisys-sidebar.relisys-sidebar-is-collapsed #app {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--relisys-glass-border);
   border-radius: var(--relisys-radius-sm);
-  padding: 8px 12px;
+  padding: 7px 12px;
   color: var(--relisys-text-dim);
   cursor: pointer;
   transition: all 180ms ease;
@@ -356,11 +358,14 @@ body.has-relisys-sidebar.relisys-sidebar-is-collapsed #app {
 .relisys-sb-body {
   flex: 1;
   overflow-y: auto;
-  padding: 4px 10px;
+  overflow-x: hidden;
+  padding: 2px 10px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 }
 
 .relisys-sb-section {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .relisys-sb-section-title {
@@ -368,7 +373,7 @@ body.has-relisys-sidebar.relisys-sidebar-is-collapsed #app {
   font-weight: 700;
   letter-spacing: 0.12em;
   color: var(--relisys-text-dim);
-  padding: 6px 12px 8px;
+  padding: 4px 12px 5px;
 }
 
 .relisys-sb-nav-list {
@@ -377,7 +382,7 @@ body.has-relisys-sidebar.relisys-sidebar-is-collapsed #app {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
 
 .relisys-sb-nav-item {
@@ -387,8 +392,8 @@ body.has-relisys-sidebar.relisys-sidebar-is-collapsed #app {
 .relisys-sb-nav-link {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 9px 12px;
+  gap: 11px;
+  padding: 6.5px 12px;
   border-radius: var(--relisys-radius-sm);
   color: var(--relisys-text-muted);
   text-decoration: none;
@@ -446,8 +451,8 @@ body.has-relisys-sidebar.relisys-sidebar-is-collapsed #app {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--relisys-glass-border);
   border-radius: var(--relisys-radius-sm);
-  padding: 10px 12px;
-  margin: 0 4px 10px;
+  padding: 8px 10px;
+  margin: 0 4px 6px;
 }
 
 .relisys-sb-server-top {
@@ -508,8 +513,9 @@ body.has-relisys-sidebar.relisys-sidebar-is-collapsed #app {
 
 /* Footer Utility */
 .relisys-sb-footer {
-  padding: 12px 14px;
+  padding: 9px 14px;
   border-top: 1px solid var(--relisys-glass-border);
+  flex-shrink: 0;
 }
 
 .relisys-sb-actions {
@@ -783,13 +789,16 @@ body.relisys-auth-page div.LoginContainer___StyledDiv2-sc-qtrnpk-2 button:hover 
 }
 
 /* ==========================================================================
-   5. Servers Cards (Dashboard ServerRow)
+   5. Servers Cards (Dashboard ServerRow) & GreyRowBox (Network, DBs, Users, Keys)
    ========================================================================== */
 
 a.ServerRow__StatusIndicatorBox-sc-1ibsw91-2,
 a.GreyRowBox-sc-1xo9c6v-0,
+div.GreyRowBox-sc-1xo9c6v-0,
 a[class*="ServerRow__StatusIndicatorBox"],
-div[class*="ServerRow__StatusIndicatorBox"] {
+div[class*="ServerRow__StatusIndicatorBox"],
+a[class*="GreyRowBox-sc-"],
+div[class*="GreyRowBox-sc-"] {
   background: var(--relisys-surface) !important;
   backdrop-filter: blur(var(--relisys-blur)) saturate(140%) !important;
   -webkit-backdrop-filter: blur(var(--relisys-blur)) saturate(140%) !important;
@@ -807,11 +816,25 @@ div[class*="ServerRow__StatusIndicatorBox"] {
 
 a.ServerRow__StatusIndicatorBox-sc-1ibsw91-2:hover,
 a.GreyRowBox-sc-1xo9c6v-0:hover,
-a[class*="ServerRow__StatusIndicatorBox"]:hover {
+div.GreyRowBox-sc-1xo9c6v-0:hover,
+a[class*="ServerRow__StatusIndicatorBox"]:hover,
+a[class*="GreyRowBox-sc-"]:hover,
+div[class*="GreyRowBox-sc-"]:hover {
   background: var(--relisys-surface-elevated) !important;
   border-color: rgba(var(--relisys-accent-rgb), 0.45) !important;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 0 24px rgba(var(--relisys-accent-rgb), 0.18) !important;
   transform: translateX(4px) translateY(-1px) !important;
+}
+
+/* GreyRowBox Icon Badges (Network, Databases, Schedules, Users, Backups) */
+div[class*="GreyRowBox"] .icon,
+a[class*="GreyRowBox"] .icon,
+div[class*="GreyRowBox"] > div.bg-neutral-500,
+div[class*="GreyRowBox"] > div.rounded-full {
+  background: rgba(var(--relisys-accent-rgb), 0.12) !important;
+  border: 1px solid rgba(var(--relisys-accent-rgb), 0.25) !important;
+  border-radius: 12px !important;
+  color: var(--relisys-accent) !important;
 }
 
 /* Eliminate all nested dark pills/boxes inside ServerRow */
@@ -903,12 +926,12 @@ p[class*="ServerRow___StyledP3-"] {
   font-size: 13px !important;
 }
 
-/* Server Row status bar on the right */
+/* Hide duplicate right-edge status bar visually while preserving computed style for JS */
 a[class*="ServerRow"] .status-bar,
 div[class*="ServerRow"] .status-bar {
-  width: 4px !important;
-  border-radius: 4px !important;
-  box-shadow: 0 0 12px currentColor !important;
+  width: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 /* ==========================================================================
@@ -970,12 +993,24 @@ div.style-module_2XbmHEcn canvas {
    7. Folders & Files System (File Manager)
    ========================================================================== */
 
-/* Top Action Bar (Upload, New File, Create Directory) */
+/* Prevent double-button border on <a href=".../files/new"><button>New File</button></a> */
+div[class*="style-module_3Y7xosru"] a {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+}
+
+/* Top Action Bar & CSS Module Buttons (Upload, New File, Create Directory, Secondary) */
 div[class*="style-module_3Y7xosru"] button,
-div[class*="style-module_3Y7xosru"] a,
 button.style-module_4LBM1DKx,
 button[class*="style-module_4LBM1DKx"],
-button[class*="style-module_3kBDV_wo"] {
+button[class*="style-module_3kBDV_wo"],
+button[class*="style-module_2RJbSnp6"] {
   background: rgba(255, 255, 255, 0.06) !important;
   color: #f1f5f9 !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
@@ -988,9 +1023,9 @@ button[class*="style-module_3kBDV_wo"] {
 }
 
 div[class*="style-module_3Y7xosru"] button:hover,
-div[class*="style-module_3Y7xosru"] a:hover,
 button.style-module_4LBM1DKx:hover,
-button[class*="style-module_4LBM1DKx"]:hover {
+button[class*="style-module_4LBM1DKx"]:hover,
+button[class*="style-module_2RJbSnp6"]:hover {
   background: rgba(var(--relisys-accent-rgb), 0.2) !important;
   border-color: rgba(var(--relisys-accent-rgb), 0.5) !important;
   color: #ffffff !important;
@@ -1000,12 +1035,57 @@ button[class*="style-module_4LBM1DKx"]:hover {
 
 /* File Breadcrumbs bar */
 div.style-module_1eM21_2G,
+div.sc-1yfrkfk-0,
+div[class*="FileManagerBreadcrumbs"],
 div[class*="Breadcrumb"] {
-  background: rgba(15, 18, 28, 0.6) !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  background: rgba(15, 18, 28, 0.65) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
   border-radius: 10px !important;
   padding: 8px 14px !important;
   backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* Mass Actions Floating Bar in File Manager */
+div.sc-1x2nl3g-1,
+div[class*="MassActionsBar___StyledDiv2"] {
+  background: rgba(13, 16, 25, 0.92) !important;
+  backdrop-filter: blur(24px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+  border: 1px solid var(--relisys-glass-border-strong) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 20px rgba(var(--relisys-accent-rgb), 0.15) !important;
+  padding: 10px 16px !important;
+}
+
+/* File Row Context Dropdown Menu */
+div.sc-1ojgpy2-1,
+div[class*="DropdownMenu___StyledDiv"] {
+  background: rgba(13, 16, 25, 0.95) !important;
+  backdrop-filter: blur(24px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+  border: 1px solid var(--relisys-glass-border-strong) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65) !important;
+  color: var(--relisys-text) !important;
+  padding: 6px !important;
+}
+
+div.sc-17ln8oh-0,
+div.sc-1ojgpy2-0,
+div[class*="FileDropdownMenu__StyledRow"],
+div[class*="DropdownMenu__DropdownButtonRow"] {
+  border-radius: 8px !important;
+  color: var(--relisys-text-muted) !important;
+  transition: all 140ms ease !important;
+}
+
+div.sc-17ln8oh-0:hover,
+div.sc-1ojgpy2-0:hover,
+div[class*="FileDropdownMenu__StyledRow"]:hover,
+div[class*="DropdownMenu__DropdownButtonRow"]:hover {
+  background: rgba(var(--relisys-accent-rgb), 0.16) !important;
+  color: #ffffff !important;
 }
 
 /* File Row */
@@ -1756,9 +1836,18 @@ div[class*="SubNavigation"] a.active {
 }
 
 /* Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
+  background: transparent !important;
+}
+
+::-webkit-scrollbar-track {
   background: transparent !important;
 }
 
@@ -1768,15 +1857,19 @@ div[class*="SubNavigation"] a.active {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(var(--relisys-accent-rgb), 0.45);
 }
 
 /* ==========================================================================
-   11. Unified Semantic Buttons & Modals
+   11. Unified Semantic Buttons, Boxes, Forms, Activity Logs & Modals
    ========================================================================== */
 
-/* Primary Button */
+/* Primary & Styled-Components Default Buttons */
 button[data-relisys-btn="primary"],
+button[class*="Button__ButtonStyle-sc-"],
+a[class*="Button__ButtonStyle-sc-"],
+button.sc-1qu1gou-0,
+a.sc-1qu1gou-0,
 .btn-primary:not(.relisys-admin-color-btn) {
   background: rgba(var(--relisys-accent-rgb), 0.22) !important;
   border: 1px solid rgba(var(--relisys-accent-rgb), 0.5) !important;
@@ -1785,20 +1878,30 @@ button[data-relisys-btn="primary"],
   font-weight: 600 !important;
   box-shadow: 0 2px 10px rgba(var(--relisys-accent-rgb), 0.2) !important;
   backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
   transition: all 180ms ease !important;
   cursor: pointer !important;
+  text-decoration: none !important;
 }
 
 button[data-relisys-btn="primary"]:hover,
+button[class*="Button__ButtonStyle-sc-"]:hover,
+a[class*="Button__ButtonStyle-sc-"]:hover,
+button.sc-1qu1gou-0:hover,
+a.sc-1qu1gou-0:hover,
 .btn-primary:not(.relisys-admin-color-btn):hover {
   background: rgba(var(--relisys-accent-rgb), 0.38) !important;
   border-color: rgba(var(--relisys-accent-rgb), 0.75) !important;
   box-shadow: 0 4px 18px rgba(var(--relisys-accent-rgb), 0.4) !important;
   transform: translateY(-1px) !important;
+  color: #ffffff !important;
 }
 
-/* Danger Button */
+/* Danger Button (including CSS Module danger variant style-module_2vOYXZWm) */
 button[data-relisys-btn="danger"],
+button.style-module_2vOYXZWm,
+button[class*="style-module_2vOYXZWm"],
+button[class*="Button__ButtonStyle-sc-"][color="red"],
 .btn-danger {
   background: rgba(244, 63, 94, 0.18) !important;
   border: 1px solid rgba(244, 63, 94, 0.45) !important;
@@ -1807,11 +1910,15 @@ button[data-relisys-btn="danger"],
   font-weight: 600 !important;
   box-shadow: 0 2px 10px rgba(244, 63, 94, 0.2) !important;
   backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
   transition: all 180ms ease !important;
   cursor: pointer !important;
 }
 
 button[data-relisys-btn="danger"]:hover,
+button.style-module_2vOYXZWm:hover,
+button[class*="style-module_2vOYXZWm"]:hover,
+button[class*="Button__ButtonStyle-sc-"][color="red"]:hover,
 .btn-danger:hover {
   background: rgba(244, 63, 94, 0.35) !important;
   border-color: rgba(244, 63, 94, 0.75) !important;
@@ -1867,7 +1974,8 @@ button[data-relisys-btn="warning"]:hover,
 }
 
 /* Ghost Button */
-button[data-relisys-btn="ghost"] {
+button[data-relisys-btn="ghost"],
+button.style-module_Yp7-2Fw- {
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid var(--relisys-glass-border) !important;
   color: var(--relisys-text-muted) !important;
@@ -1877,18 +1985,259 @@ button[data-relisys-btn="ghost"] {
   cursor: pointer !important;
 }
 
-button[data-relisys-btn="ghost"]:hover {
+button[data-relisys-btn="ghost"]:hover,
+button.style-module_Yp7-2Fw-:hover {
   background: rgba(255, 255, 255, 0.1) !important;
   color: #ffffff !important;
   border-color: var(--relisys-glass-border-strong) !important;
 }
 
 /* Option: Hide duplicate horizontal top subnav when enabled */
-body.relisys-hide-top-subnav div[class*="SubNavigation"] {
+body.relisys-hide-top-subnav div[class*="SubNavigation"],
+body.relisys-hide-top-subnav #SubNavigation {
   display: none !important;
 }
 
-/* Pterodactyl Modals & Dialog Portals Glass UI */
+/* ==========================================================================
+   12. TitledGreyBox, ContentBox, Activity Log & Global Form Controls
+   ========================================================================== */
+
+/* TitledGreyBox (Startup, Settings, Subuser Permissions, SFTP, Debug, Rename, Reinstall) */
+div.sc-gvsoy-0,
+div[class*="TitledGreyBox___StyledDiv-sc-"] {
+  background: var(--relisys-surface) !important;
+  backdrop-filter: blur(var(--relisys-blur)) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(var(--relisys-blur)) saturate(140%) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  border-radius: var(--relisys-radius) !important;
+  box-shadow: var(--relisys-shadow) !important;
+  overflow: hidden !important;
+  transition: border-color 180ms ease, box-shadow 180ms ease !important;
+}
+
+div.sc-gvsoy-0:hover,
+div[class*="TitledGreyBox___StyledDiv-sc-"]:hover {
+  border-color: rgba(var(--relisys-accent-rgb), 0.35) !important;
+}
+
+/* TitledGreyBox Header Bar */
+div.sc-gvsoy-1,
+div[class*="TitledGreyBox___StyledDiv2-sc-"] {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-bottom: 1px solid var(--relisys-glass-border) !important;
+  padding: 12px 16px !important;
+  color: #ffffff !important;
+}
+
+/* TitledGreyBox Body */
+div.sc-gvsoy-4,
+div[class*="TitledGreyBox___StyledDiv3-sc-"] {
+  background: transparent !important;
+  padding: 16px !important;
+}
+
+/* ContentBox (Account Overview, API Credentials, SSH Keys, 2FA) */
+div.sc-mjlt6f-2,
+div[class*="ContentBox___StyledDiv-sc-"] {
+  background: var(--relisys-surface) !important;
+  backdrop-filter: blur(var(--relisys-blur)) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(var(--relisys-blur)) saturate(140%) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  border-radius: var(--relisys-radius) !important;
+  box-shadow: var(--relisys-shadow) !important;
+  padding: 1.5rem !important;
+  transition: border-color 180ms ease, box-shadow 180ms ease !important;
+}
+
+div.sc-mjlt6f-2:hover,
+div[class*="ContentBox___StyledDiv-sc-"]:hover {
+  border-color: rgba(var(--relisys-accent-rgb), 0.35) !important;
+}
+
+/* Activity Logs & Neutral Containers (Server Activity, Account Activity, Empty State Boxes, Modal Switch Rows) */
+#app div.bg-gray-700,
+#app div.bg-neutral-700 {
+  background: var(--relisys-surface) !important;
+  backdrop-filter: blur(var(--relisys-blur)) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(var(--relisys-blur)) saturate(140%) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  border-radius: var(--relisys-radius) !important;
+  box-shadow: var(--relisys-shadow) !important;
+  overflow: hidden !important;
+}
+
+#modal-portal div.bg-neutral-700,
+div[class*="Modal"] div.bg-neutral-700 {
+  background: rgba(255, 255, 255, 0.035) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  border-radius: var(--relisys-radius-sm) !important;
+}
+
+#app .border-gray-800,
+#app .border-neutral-800,
+#app .border-neutral-700 {
+  border-color: var(--relisys-glass-border) !important;
+}
+
+/* Activity Log Avatar Circle */
+#app div.bg-gray-600 {
+  background: rgba(var(--relisys-accent-rgb), 0.14) !important;
+  border: 1px solid rgba(var(--relisys-accent-rgb), 0.3) !important;
+}
+
+/* Code Blocks & Pills (Startup Command, Server ID, Node Badge) */
+#app div.bg-neutral-900:not(#NavigationBar),
+#app p.bg-neutral-900,
+#app code.bg-neutral-900,
+#app div.bg-neutral-800,
+#app code {
+  background: rgba(8, 10, 16, 0.78) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  border-radius: var(--relisys-radius-xs) !important;
+  color: #e2e8f0 !important;
+  font-family: "JetBrains Mono", monospace !important;
+}
+
+/* Global Form Controls (Inputs, Textareas, Selects across Startup, Settings, Network, Account & Modals) */
+input.sc-19rce1w-0,
+textarea.sc-19rce1w-1,
+select.sc-17exaqp-0,
+input[class*="Input-sc-"]:not([type="checkbox"]):not([type="radio"]),
+textarea[class*="Input__Textarea-sc-"],
+select[class*="Select-sc-"],
+#app input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(.relisys-cmd-input),
+#app textarea,
+#app select,
+div[role="dialog"] input:not([type="checkbox"]):not([type="radio"]),
+div[role="dialog"] textarea,
+div[role="dialog"] select,
+div[class*="Modal"] input:not([type="checkbox"]):not([type="radio"]),
+div[class*="Modal"] textarea,
+div[class*="Modal"] select {
+  background: rgba(12, 15, 24, 0.82) !important;
+  border: 1px solid var(--relisys-glass-border-strong) !important;
+  border-radius: var(--relisys-radius-sm) !important;
+  color: #ffffff !important;
+  padding: 9px 13px !important;
+  font-size: 13px !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35) !important;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease !important;
+}
+
+input.sc-19rce1w-0:focus,
+textarea.sc-19rce1w-1:focus,
+select.sc-17exaqp-0:focus,
+input[class*="Input-sc-"]:not([type="checkbox"]):not([type="radio"]):focus,
+textarea[class*="Input__Textarea-sc-"]:focus,
+select[class*="Select-sc-"]:focus,
+#app input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(.relisys-cmd-input):focus,
+#app textarea:focus,
+#app select:focus,
+div[role="dialog"] input:not([type="checkbox"]):not([type="radio"]):focus,
+div[role="dialog"] textarea:focus,
+div[role="dialog"] select:focus,
+div[class*="Modal"] input:not([type="checkbox"]):not([type="radio"]):focus,
+div[class*="Modal"] textarea:focus,
+div[class*="Modal"] select:focus {
+  border-color: var(--relisys-accent) !important;
+  box-shadow: 0 0 0 3px var(--relisys-accent-soft) !important;
+  background: rgba(16, 20, 32, 0.95) !important;
+  outline: none !important;
+}
+
+#app select option,
+div[class*="Modal"] select option {
+  background: #0d1019 !important;
+  color: #f8fafc !important;
+}
+
+/* Labels */
+label.sc-g780ms-0,
+label[class*="Label-sc-"] {
+  color: var(--relisys-text-muted) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+}
+
+/* Checkboxes & Toggle Switches */
+input[type="checkbox"][class*="Input-sc-"],
+#app input[type="checkbox"],
+#modal-portal input[type="checkbox"] {
+  background-color: rgba(12, 15, 24, 0.85) !important;
+  border: 1px solid var(--relisys-glass-border-strong) !important;
+  border-radius: 5px !important;
+  cursor: pointer !important;
+}
+
+input[type="checkbox"][class*="Input-sc-"]:checked,
+#app input[type="checkbox"]:checked,
+#modal-portal input[type="checkbox"]:checked,
+div.sc-1nxt82m-0 input[type="checkbox"]:checked + label,
+div[class*="Switch__ToggleContainer"] input[type="checkbox"]:checked + label {
+  background-color: var(--relisys-accent) !important;
+  border-color: var(--relisys-accent) !important;
+  box-shadow: 0 0 10px rgba(var(--relisys-accent-rgb), 0.35) !important;
+}
+
+/* Alerts (Danger, Warning, Success, Info) */
+div.style-module_29VBSqzb {
+  background: rgba(244, 63, 94, 0.14) !important;
+  border: 1px solid rgba(244, 63, 94, 0.4) !important;
+  border-radius: var(--relisys-radius-sm) !important;
+  color: #fecdd3 !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+div.style-module_MiyRox1U {
+  background: rgba(245, 158, 11, 0.14) !important;
+  border: 1px solid rgba(245, 158, 11, 0.4) !important;
+  border-radius: var(--relisys-radius-sm) !important;
+  color: #fde68a !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+div.style-module_1cEEnDuK {
+  background: rgba(16, 185, 129, 0.14) !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+  border-radius: var(--relisys-radius-sm) !important;
+  color: #a7f3d0 !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+div.style-module_3mL_JU2X {
+  background: rgba(var(--relisys-accent-rgb), 0.14) !important;
+  border: 1px solid rgba(var(--relisys-accent-rgb), 0.4) !important;
+  border-radius: var(--relisys-radius-sm) !important;
+  color: #e2e8f0 !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+/* Pagination Blocks */
+div.sc-7j9cqz-0,
+a.sc-7j9cqz-0,
+button.sc-7j9cqz-0,
+[class*="Pagination__Block-sc-"] {
+  background: var(--relisys-surface) !important;
+  border: 1px solid var(--relisys-glass-border) !important;
+  border-radius: 8px !important;
+  color: var(--relisys-text-muted) !important;
+  transition: all 160ms ease !important;
+}
+
+div.sc-7j9cqz-0:hover,
+a.sc-7j9cqz-0:hover,
+button.sc-7j9cqz-0:hover,
+[class*="Pagination__Block-sc-"]:hover {
+  background: rgba(var(--relisys-accent-rgb), 0.18) !important;
+  border-color: rgba(var(--relisys-accent-rgb), 0.45) !important;
+  color: #ffffff !important;
+}
+
+/* Pterodactyl Modals & HeadlessUI Dialog Portals Glass UI */
+div.sc-9vzni8-0,
+div[class*="Modal__ModalMask"],
 div[class*="Modal__ModalOverlay"],
 div[class*="Dialog__DialogOverlay"],
 div[role="dialog"] > div:first-child {
@@ -1897,8 +2246,11 @@ div[role="dialog"] > div:first-child {
   background: rgba(4, 6, 11, 0.75) !important;
 }
 
+div.sc-9vzni8-1,
 div[class*="Modal__ModalContainer"],
 div[class*="Dialog__DialogContainer"],
+div.style-module_1RnhIT0w,
+div[class*="style-module_1RnhIT0w"],
 div[role="dialog"] div[class*="styled__Container"] {
   background: rgba(13, 16, 25, 0.94) !important;
   backdrop-filter: blur(28px) saturate(160%) !important;
@@ -1907,6 +2259,16 @@ div[role="dialog"] div[class*="styled__Container"] {
   border-radius: var(--relisys-radius) !important;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
   color: var(--relisys-text) !important;
+}
+
+/* Remove opaque bg-neutral-800 from Modal___StyledDiv2-sc-9vzni8-3 inside ModalContainer */
+div.sc-9vzni8-2,
+div.sc-9vzni8-3,
+div[class*="Modal___StyledDiv-sc-"],
+div[class*="Modal___StyledDiv2-sc-"],
+div.style-module_3qQYBFRK,
+div.style-module_3brcmFXP {
+  background: transparent !important;
 }
 
 /* CodeMirror / File Editor Enhancement */
@@ -1926,30 +2288,4 @@ div[role="dialog"] div[class*="styled__Container"] {
 
 .CodeMirror-linenumber {
   color: var(--relisys-text-dim) !important;
-}
-
-/* Form inputs & selects inside modals and settings */
-div[role="dialog"] input,
-div[role="dialog"] textarea,
-div[role="dialog"] select,
-div[class*="Modal"] input,
-div[class*="Modal"] textarea,
-div[class*="Modal"] select {
-  background: rgba(18, 22, 35, 0.85) !important;
-  border: 1px solid var(--relisys-glass-border) !important;
-  border-radius: var(--relisys-radius-sm) !important;
-  color: #ffffff !important;
-  padding: 8px 12px !important;
-  font-size: 13px !important;
-}
-
-div[role="dialog"] input:focus,
-div[role="dialog"] textarea:focus,
-div[role="dialog"] select:focus,
-div[class*="Modal"] input:focus,
-div[class*="Modal"] textarea:focus,
-div[class*="Modal"] select:focus {
-  border-color: var(--relisys-accent) !important;
-  box-shadow: 0 0 0 3px var(--relisys-accent-soft) !important;
-  outline: none !important;
 }

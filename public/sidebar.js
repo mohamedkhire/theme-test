@@ -28,6 +28,8 @@
     collapse: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>',
     expand: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>',
     copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+    key: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>',
+    ssh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
     discord: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>',
     studio: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 10 10 0 0 0 0-20"/><path d="M2 12h20"/></svg>'
   };
@@ -90,12 +92,12 @@
     };
   }
 
-  function isNavLinkActive(linkHref, currentServerId) {
+  function isNavLinkActive(linkHref, currentServerId, isExact) {
     var cur = window.location.pathname.replace(/\/+$/, '') || '/';
     var target = (linkHref || '').replace(/\/+$/, '') || '/';
 
-    if (target === '/') {
-      return cur === '/';
+    if (target === '/' || isExact) {
+      return cur === target;
     }
     if (currentServerId && target === '/server/' + currentServerId) {
       return cur === target;
@@ -126,7 +128,8 @@
     container.className = 'relisys-sidebar-wrapper' + (isCollapsed ? ' collapsed' : '');
 
     var server = extractServerInfo();
-    container.setAttribute('data-server-id', server ? server.id : '');
+    var isAccountSection = window.location.pathname.indexOf('/account') === 0;
+    container.setAttribute('data-server-id', server ? server.id : (isAccountSection ? '__account__' : ''));
 
     var showAdmin = !window.RelisysTheme || !window.RelisysTheme.isRootAdmin || window.RelisysTheme.isRootAdmin();
 
@@ -261,6 +264,38 @@
         '        </li>' +
         '        <li class="relisys-sb-nav-item' + (isNavLinkActive('/server/' + sid + '/activity', sid) ? ' active' : '') + '">' +
         '          <a href="/server/' + sid + '/activity" class="relisys-sb-nav-link" data-spa-link="true" title="Activity Logs">' +
+        '            <span class="relisys-sb-nav-icon">' + ICONS.activity + '</span>' +
+        '            <span class="relisys-sb-nav-text">Activity</span>' +
+        '          </a>' +
+        '        </li>' +
+        '      </ul>' +
+        '    </div>';
+    } else if (isAccountSection) {
+      html +=
+        '    <!-- Account Context Section -->' +
+        '    <div class="relisys-sb-section relisys-sb-account-context">' +
+        '      <div class="relisys-sb-section-title">ACCOUNT SETTINGS</div>' +
+        '      <ul class="relisys-sb-nav-list">' +
+        '        <li class="relisys-sb-nav-item' + (isNavLinkActive('/account', null, true) ? ' active' : '') + '" data-exact="true">' +
+        '          <a href="/account" class="relisys-sb-nav-link" data-spa-link="true" title="Account Overview">' +
+        '            <span class="relisys-sb-nav-icon">' + ICONS.account + '</span>' +
+        '            <span class="relisys-sb-nav-text">Overview</span>' +
+        '          </a>' +
+        '        </li>' +
+        '        <li class="relisys-sb-nav-item' + (isNavLinkActive('/account/api', null, true) ? ' active' : '') + '">' +
+        '          <a href="/account/api" class="relisys-sb-nav-link" data-spa-link="true" title="API Credentials">' +
+        '            <span class="relisys-sb-nav-icon">' + ICONS.key + '</span>' +
+        '            <span class="relisys-sb-nav-text">API Credentials</span>' +
+        '          </a>' +
+        '        </li>' +
+        '        <li class="relisys-sb-nav-item' + (isNavLinkActive('/account/ssh', null, true) ? ' active' : '') + '">' +
+        '          <a href="/account/ssh" class="relisys-sb-nav-link" data-spa-link="true" title="SSH Keys">' +
+        '            <span class="relisys-sb-nav-icon">' + ICONS.ssh + '</span>' +
+        '            <span class="relisys-sb-nav-text">SSH Keys</span>' +
+        '          </a>' +
+        '        </li>' +
+        '        <li class="relisys-sb-nav-item' + (isNavLinkActive('/account/activity', null, true) ? ' active' : '') + '">' +
+        '          <a href="/account/activity" class="relisys-sb-nav-link" data-spa-link="true" title="Account Activity">' +
         '            <span class="relisys-sb-nav-icon">' + ICONS.activity + '</span>' +
         '            <span class="relisys-sb-nav-text">Activity</span>' +
         '          </a>' +
@@ -431,11 +466,12 @@
     }
 
     var server = extractServerInfo();
-    var currentServerId = server ? server.id : '';
+    var isAccountSection = window.location.pathname.indexOf('/account') === 0;
+    var currentContextId = server ? server.id : (isAccountSection ? '__account__' : '');
     var renderedServerId = root.getAttribute('data-server-id') || '';
 
-    // Rebuild if switching between dashboard and server OR switching from Server A to Server B
-    if (currentServerId !== renderedServerId) {
+    // Rebuild if switching between dashboard, account, and server OR switching from Server A to Server B
+    if (currentContextId !== renderedServerId) {
       root.remove();
       createSidebar();
       return;
@@ -450,7 +486,8 @@
       var link = item.querySelector('a');
       if (!link) return;
       var href = link.getAttribute('href');
-      item.classList.toggle('active', isNavLinkActive(href, currentServerId));
+      var isExact = item.getAttribute('data-exact') === 'true';
+      item.classList.toggle('active', isNavLinkActive(href, server ? server.id : null, isExact));
     });
   }
 

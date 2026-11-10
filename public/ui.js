@@ -11,6 +11,74 @@
     return (el && el.textContent || '').replace(/\s+/g, ' ').trim();
   }
 
+  // Live cache of server states (keyed by short identifier / UUID prefix) for 0ms status dot updates
+  var STATE_CACHE_KEY = 'relisys_server_states';
+  var serverStateCache = {};
+  try {
+    var savedStates = sessionStorage.getItem(STATE_CACHE_KEY);
+    if (savedStates) serverStateCache = JSON.parse(savedStates) || {};
+  } catch (e) {}
+
+  function normalizeStateName(raw) {
+    if (!raw || typeof raw !== 'string') return null;
+    var s = raw.toLowerCase();
+    if (s === 'running' || s === 'online') return 'online';
+    if (s === 'starting' || s === 'stopping' || s === 'installing' || s === 'restoring') return 'starting';
+    if (s === 'offline' || s === 'suspended') return 'offline';
+    return null;
+  }
+
+  function recordServerState(serverId, rawState) {
+    if (!serverId) return;
+    var norm = normalizeStateName(rawState);
+    if (!norm) return;
+    var shortId = serverId.slice(0, 8);
+    var changed = serverStateCache[serverId] !== norm || serverStateCache[shortId] !== norm;
+    serverStateCache[serverId] = norm;
+    serverStateCache[shortId] = norm;
+    if (changed) {
+      try {
+        sessionStorage.setItem(STATE_CACHE_KEY, JSON.stringify(serverStateCache));
+      } catch (e) {}
+      scheduleRun();
+    }
+  }
+
+  // Intercept Pterodactyl's /api/client/servers/<id>/resources XHR & fetch responses for 0ms telemetry sync
+  function installTelemetryInterceptor() {
+    if (window.__relisysTelemetryHooked) return;
+    window.__relisysTelemetryHooked = true;
+
+    if (typeof XMLHttpRequest !== 'undefined') {
+      var origOpen = XMLHttpRequest.prototype.open;
+      var origSend = XMLHttpRequest.prototype.send;
+
+      XMLHttpRequest.prototype.open = function (method, url) {
+        this._relisysUrl = typeof url === 'string' ? url : '';
+        return origOpen.apply(this, arguments);
+      };
+
+      XMLHttpRequest.prototype.send = function () {
+        var xhr = this;
+        if (xhr._relisysUrl && xhr._relisysUrl.indexOf('/resources') !== -1) {
+          xhr.addEventListener('load', function () {
+            try {
+              var m = xhr._relisysUrl.match(/\/api\/client\/servers\/([a-zA-Z0-9_-]+)\/resources/);
+              if (m && xhr.status === 200 && xhr.responseText) {
+                var data = JSON.parse(xhr.responseText);
+                var st = data && data.attributes && data.attributes.current_state;
+                if (st) recordServerState(m[1], st);
+              }
+            } catch (e) {}
+          });
+        }
+        return origSend.apply(this, arguments);
+      };
+    }
+  }
+
+  installTelemetryInterceptor();
+
   // Extract React Fiber node to read live server state directly without slow getComputedStyle polling
   function getReactFiber(el) {
     if (!el) return null;
@@ -24,8 +92,16 @@
     return null;
   }
 
+  function extractRowServerId(row) {
+    var href = row.getAttribute('href') || '';
+    var m = href.match(/\/server\/([a-zA-Z0-9_-]+)/);
+    return m ? m[1] : null;
+  }
+
   // Fast status resolution for a ServerRow element
   function detectServerStatus(row) {
+    var serverId = extractRowServerId(row);
+
     // 1. Check React Fiber props/memoizedProps for $status or status
     var fiber = getReactFiber(row);
     var depth = 0;
@@ -33,64 +109,68 @@
       var props = fiber.memoizedProps || fiber.pendingProps;
       if (props) {
         var rawStatus = props.$status || props.status || (props.server && props.server.status);
-        if (typeof rawStatus === 'string') {
-          var s = rawStatus.toLowerCase();
-          if (s === 'running' || s === 'online') return 'online';
-          if (s === 'starting' || s === 'stopping' || s === 'installing') return 'starting';
-          if (s === 'offline' || s === 'suspended') return 'offline';
+        var norm = normalizeStateName(rawStatus);
+        if (norm) {
+          if (serverId) recordServerState(serverId, norm);
+          return norm;
         }
       }
       fiber = fiber.return;
       depth++;
     }
 
-    // 2. Check status-bar element attributes, classes, or inline style
+    // 2. Check .status-bar Fiber props
     var bar = row.querySelector('.status-bar');
     if (bar) {
       var barFiber = getReactFiber(bar);
       if (barFiber && barFiber.memoizedProps && barFiber.memoizedProps.$status) {
-        var bs = String(barFiber.memoizedProps.$status).toLowerCase();
-        if (bs === 'running' || bs === 'online') return 'online';
-        if (bs === 'starting' || bs === 'stopping') return 'starting';
-        return 'offline';
+        var bNorm = normalizeStateName(String(barFiber.memoizedProps.$status));
+        if (bNorm) {
+          if (serverId) recordServerState(serverId, bNorm);
+          return bNorm;
+        }
       }
+    }
 
-      // Check text content inside row for "Offline", "Suspended", "Installing"
-      var rowText = (row.textContent || '').toLowerCase();
-      if (rowText.indexOf('offline') !== -1 || rowText.indexOf('suspended') !== -1 || rowText.indexOf('error') !== -1) {
-        return 'offline';
-      }
-      if (rowText.indexOf('starting') !== -1 || rowText.indexOf('installing') !== -1 || rowText.indexOf('restoring') !== -1) {
-        return 'starting';
-      }
+    // 3. Check live XHR cache from /api/client/servers/<id>/resources
+    if (serverId && (serverStateCache[serverId] || serverStateCache[serverId.slice(0, 8)])) {
+      return serverStateCache[serverId] || serverStateCache[serverId.slice(0, 8)];
+    }
 
-      // Check computed background color of .status-bar only if needed
+    // 4. Check explicit text content inside row for "Offline", "Suspended", "Starting"
+    var rowText = (row.textContent || '').toLowerCase();
+    if (rowText.indexOf('offline') !== -1 || rowText.indexOf('suspended') !== -1 || rowText.indexOf('connection error') !== -1) {
+      return 'offline';
+    }
+    if (rowText.indexOf('starting') !== -1 || rowText.indexOf('installing') !== -1 || rowText.indexOf('restoring') !== -1) {
+      return 'starting';
+    }
+
+    // 5. If CPU / Memory live numbers or GiB/MiB metrics are visible on the card, server is online
+    var metrics = row.querySelectorAll('p[class*="ServerRow___StyledP3-"], [class*="IconDescription"]');
+    for (var m = 0; m < metrics.length; m++) {
+      var mText = metrics[m].textContent || '';
+      if (/\d+(\.\d+)?\s*(%|MiB|GiB|KiB|MB|GB)/i.test(mText)) {
+        return 'online';
+      }
+    }
+
+    // 6. Check computed background color of .status-bar only if not currently showing initial mount spinner
+    var hasSpinner = !!row.querySelector('svg[class*="Spinner"], .animate-spin');
+    if (bar && !hasSpinner) {
       var bg = window.getComputedStyle(bar).backgroundColor || '';
       var rgbMatch = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
       if (rgbMatch) {
         var r = parseInt(rgbMatch[1], 10);
         var g = parseInt(rgbMatch[2], 10);
         var b = parseInt(rgbMatch[3], 10);
-        // Greenish (running)
         if (g > 150 && g > r * 1.3) return 'online';
-        // Yellow/Amber (starting/stopping)
         if (r > 180 && g > 120 && b < 100) return 'starting';
-        // Reddish (offline)
         if (r > 180 && g < 120) return 'offline';
       }
     }
 
-    // 3. Fallback: if CPU / Memory live numbers are visible on the card, server is online
-    var metrics = row.querySelectorAll('p[class*="ServerRow___StyledP3-"], [class*="IconDescription"]');
-    for (var m = 0; m < metrics.length; m++) {
-      var mText = metrics[m].textContent || '';
-      if (/\d+(\.\d+)?\s*%/.test(mText)) {
-        var pct = parseFloat(mText);
-        if (pct > 0) return 'online';
-      }
-    }
-
-    return 'offline';
+    return hasSpinner ? 'starting' : 'offline';
   }
 
   // 1. Server Row Instant Status Dots & Live Telemetry Polish
@@ -312,8 +392,13 @@
         label === 'login' ||
         label === 'save' ||
         label === 'save changes' ||
+        label === 'create' ||
         label.indexOf('create ') === 0 ||
         label.indexOf('new ') === 0 ||
+        label === 'invite user' ||
+        label.indexOf('update ') === 0 ||
+        label.indexOf('enable ') === 0 ||
+        label === 'launch sftp' ||
         label === 'upload'
       ) {
         btn.setAttribute('data-relisys-btn', 'primary');
